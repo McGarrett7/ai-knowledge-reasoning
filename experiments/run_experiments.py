@@ -10,7 +10,7 @@ def load_kg(file_path):
 
 def run_experiment():
     print("Loading dataset...")
-    kg = load_kg("../dataset/renewable_kg.csv")
+    kg = load_kg("../dataset/SolarKG-VN.csv")
     print("Total triples:", len(kg))
 
     print("\nRunning Algorithm 1...")

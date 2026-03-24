@@ -58,12 +58,12 @@ def knowledge_graph():
     kg = pd.DataFrame(triples, columns=["head","relation","tail"])
     kg = kg.sample(5000)
 
-    kg.to_csv("../dataset/renewable_kg.csv", index=False)
+    kg.to_csv("../dataset/SolarKG-VN.csv", index=False)
     print("Knowledge Graph dataset created")
     # result: Knowledge Graph dataset created
 
 def dataset_split():
-    kg = pd.read_csv("../dataset/renewable_kg.csv")
+    kg = pd.read_csv("../dataset/SolarKG-VN.csv")
     train, test = train_test_split(kg, test_size=0.2, random_state=42)
     train, val = train_test_split(train, test_size=0.2, random_state=42)
     train.to_csv("../dataset/train.csv", index=False)
@@ -73,7 +73,7 @@ def dataset_split():
     # result: 3200 800 1000
 
 def add_noise():
-    kg = pd.read_csv("../dataset/renewable_kg.csv")
+    kg = pd.read_csv("../dataset/SolarKG-VN.csv")
     noise_rows = []
     for i in range(300):
         row = kg.iloc[random.randint(0,len(kg)-1)]
@@ -85,5 +85,5 @@ def add_noise():
 
     noise = pd.DataFrame(noise_rows)
     kg_noisy = pd.concat([kg,noise])
-    kg_noisy.to_csv("../dataset/renewable_kg_noisy.csv",index=False)
+    kg_noisy.to_csv("../dataset/SolarKG-VN_noisy.csv",index=False)
     print("Noisy dataset created:",len(kg_noisy))
