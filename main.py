@@ -99,7 +99,8 @@ def main(argv=None):
         if args.backend != "none":
             metrics["backend"] = extractor.backend.describe()
             metrics["usage"] = vars(extractor.backend.usage)
-        out = RESULTS_DIR / f"extraction_{extractor.name.replace(':', '-')}.json"
+        from kg.llm import safe_name
+        out = RESULTS_DIR / f"extraction_{safe_name(extractor.name)}.json"
         out.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
         pred.to_csv(RESULTS_DIR / "extracted_triples.csv", index=False)
         print(json.dumps(metrics, indent=2))

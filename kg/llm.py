@@ -184,51 +184,77 @@ class DeepSeekBackend(LLMBackend):
         if not self.api_key:
             raise LLMError("set the DEEPSEEK_API_KEY environment variable")
         self.base_url = (self.base_url or os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")).rstrip("/")
+        # provider-specific request fields, e.g. '{"enable_thinking": false}'
+        self.extra_body = json.loads(os.environ.get("DEEPSEEK_EXTRA_BODY", "") or "{}")
+        self.json_mode = True          # switched off automatically if the endpoint rejects it
 
-    def _raw(self, system, user, schema):
-        system = (system + "\n\nReply with a single JSON object that conforms to this JSON schema:\n"
-                  + json.dumps(schema))
-        body = json.dumps({
-            "model": self.model,
-            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-            "response_format": {"type": "json_object"},
-            "temperature": 0,
-            "max_tokens": self.max_tokens,
-            "stream": False,
-        }).encode()
-        req = urllib.request.Request(f"{self.base_url}/chat/completions", data=body, headers={
-            "Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"})
+    def _post(self, payload: dict) -> dict:
+        req = urllib.request.Request(f"{self.base_url}/chat/completions", data=json.dumps(payload).encode(),
+                                     headers={"Content-Type": "application/json",
+                                              "Authorization": f"Bearer {self.api_key}"})
         last = None
         for attempt in range(4):
             try:
                 with urllib.request.urlopen(req, timeout=600) as resp:
-                    data = json.loads(resp.read())
-                break
+                    return json.loads(resp.read())
             except urllib.error.HTTPError as exc:
                 detail = exc.read().decode(errors="replace")[:300]
-                if exc.code in (429, 500, 502, 503) and attempt < 3:
-                    time.sleep(2 ** attempt * 5)
+                if exc.code in (429, 500, 502, 503, 504) and attempt < 3:
                     last = exc
+                    time.sleep(2 ** attempt * 5)
                     continue
-                raise LLMError(f"DeepSeek HTTP {exc.code}: {detail}") from exc
+                raise _HTTPError(exc.code, detail) from exc
             except OSError as exc:
                 last = exc
                 time.sleep(2 ** attempt * 5)
-        else:
-            raise LLMError(f"cannot reach {self.base_url}: {last}")
+        raise LLMError(f"cannot reach {self.base_url}: {last}")
+
+    def _raw(self, system, user, schema):
+        system = (system + "\n\nReply with a single JSON object (no prose, no code fences) that conforms "
+                  "to this JSON schema:\n" + json.dumps(schema))
+        payload = {"model": self.model,
+                   "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+                   "temperature": 0, "max_tokens": self.max_tokens, "stream": False, **self.extra_body}
+        try:
+            data = self._post({**payload, "response_format": {"type": "json_object"}} if self.json_mode else payload)
+        except _HTTPError as exc:
+            if not (self.json_mode and exc.code in (400, 422)):
+                raise LLMError(f"{self.name} HTTP {exc.code}: {exc.detail}") from exc
+            self.json_mode = False     # endpoint does not support response_format
+            try:
+                data = self._post(payload)
+            except _HTTPError as exc2:
+                raise LLMError(f"{self.name} HTTP {exc2.code}: {exc2.detail}") from exc2
         choice = data["choices"][0]
         if choice.get("finish_reason") == "length":
             raise LLMError("reply truncated (max_tokens); use a smaller batch")
-        usage = data.get("usage", {})
-        return choice["message"]["content"], {"input_tokens": usage.get("prompt_tokens", 0),
-                                              "output_tokens": usage.get("completion_tokens", 0)}
+        usage = data.get("usage") or {}
+        return _json_text(choice["message"]["content"] or ""), {
+            "input_tokens": usage.get("prompt_tokens", 0), "output_tokens": usage.get("completion_tokens", 0)}
 
     def describe(self):
-        return {"backend": self.name, "model": self.model, "base_url": self.base_url, "temperature": 0}
+        return {"backend": self.name, "model": self.model, "base_url": self.base_url, "temperature": 0,
+                "json_mode": self.json_mode, "extra_body": self.extra_body}
+
+
+class _HTTPError(Exception):
+    def __init__(self, code, detail):
+        super().__init__(f"HTTP {code}: {detail}")
+        self.code, self.detail = code, detail
+
+
+def _json_text(text: str) -> str:
+    """Strip code fences / reasoning text around the outermost JSON object."""
+    start, end = text.find("{"), text.rfind("}")
+    return text[start:end + 1] if start != -1 and end > start else text
+
+
+def safe_name(s: str) -> str:
+    return "".join(c if c.isalnum() or c in "-_." else "-" for c in s)
 
 
 def make_backend(kind: str, model: str | None = None, tag: str = "llm") -> LLMBackend:
-    cache = RESULTS_DIR / "llm_cache" / f"{tag}_{kind}_{(model or 'default').replace(':', '-')}.jsonl"
+    cache = RESULTS_DIR / "llm_cache" / f"{tag}_{kind}_{safe_name(model or 'default')}.jsonl"
     if kind == "anthropic":
         return ClaudeBackend(model=model or "claude-opus-5-5", cache_path=cache)
     if kind == "ollama":

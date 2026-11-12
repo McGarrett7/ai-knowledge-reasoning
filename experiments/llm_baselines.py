@@ -21,7 +21,7 @@ from scipy.spatial import cKDTree
 from algorithms.algorithm2_learning import algorithm2_learning_reasoning
 from algorithms.paraconsistent import Conclusion
 from config import RESULTS_DIR
-from kg.llm import LLMError, load_prompt
+from kg.llm import LLMError, load_prompt, safe_name
 from kg.ontology import is_location, location_coords
 
 ANSWER_SCHEMA = {
@@ -47,7 +47,8 @@ ANSWER_SCHEMA = {
 
 # USD per million tokens (input, output); used only for the cost column
 # DeepSeek: official off-peak rate (peak is 2x); third-party gateways price differently
-PRICES = {"deepseek-flash": (0.15, 0.60), "claude-opus-5-5": (4.0, 20.0), "claude-sonnet-5-5": (2.0, 10.0), "claude-haiku-5-5": (0.10, 0.50)}
+PRICES = {"deepseek-flash": (0.15, 0.60),  # gateway models: cost not estimated
+           "claude-opus-5-5": (4.0, 20.0), "claude-sonnet-5-5": (2.0, 10.0), "claude-haiku-5-5": (0.10, 0.50)}
 
 
 class Retriever:
@@ -142,7 +143,7 @@ def run_llm_baselines(task, backend, value_description: str, max_queries: int | 
             "LLM + paraconsistent (Alg. 2)": task.score(symbolic, "_llm"),
             "usage": usage,
         }
-    out = RESULTS_DIR / f"llm_baselines_{backend.name}_{backend.model.replace(':', '-')}.json"
+    out = RESULTS_DIR / f"llm_baselines_{backend.name}_{safe_name(backend.model)}.json"
     out.write_text(json.dumps(results, indent=2), encoding="utf-8")
     print(f"saved {out}")
     return results
