@@ -3,7 +3,7 @@
     python main.py run            # main SolarKG-VN experiment (Tables 7-10, Figures)
     python main.py run --quick    # Algorithms 1-3 only, one seed
     python main.py scalability    # runtime / scalability study
-    python main.py benchmarks     # UMLS, Kinship, Nations (+ --datasets WN18RR FB15k-237)
+    python main.py benchmarks     # UMLS, Kinship, Nations, CoDEx-S (+ --datasets WN18RR FB15k-237)
     python main.py llm --backend anthropic            # LLM baselines with Claude
     python main.py llm --backend ollama --model qwen2.5:7b-instruct
     python main.py extract [--backend ...]            # LLM-assisted KG construction + extraction quality
@@ -32,7 +32,7 @@ def main(argv=None):
     s = sub.add_parser("scalability")
     s.add_argument("--sizes", type=int, nargs="*")
     b = sub.add_parser("benchmarks")
-    b.add_argument("--datasets", nargs="*", default=["umls", "kinship", "nations"])
+    b.add_argument("--datasets", nargs="*", default=["umls", "kinship", "nations", "codex-s"])
     b.add_argument("--seeds", type=int, nargs="*", default=[0, 1, 2])
     for name in ("llm", "extract"):
         q = sub.add_parser(name)

@@ -1,14 +1,24 @@
 """Standard KG benchmarks (reviewer R2-2, R2-7, R2-8).
 
-Datasets: UMLS, Kinship, Nations (default; every model trains on CPU) and
-optionally WN18RR / FB15k-237 (standard splits from the ConvE repository).
+Datasets: UMLS, Kinship, Nations (ConvE splits), CoDEx-S (Wikidata,
+Safavi & Koutra 2020) and optionally WN18RR / FB15k-237.
+
+UMLS, Kinship and Nations have almost no functional relations (Kinship: none
+at confidence 0.9), so they contain (almost) no logical conflicts under Func
+axioms; on them the task reduces to noisy-fact filtering. CoDEx-S has 16
+functional relations (sex, place of birth, ...) and is the benchmark for
+conflict resolution.
 
 Protocol
-  * Inject tail-corrupted triples into every split at the SolarKG-VN rate
-    (5.8% of triples). A corrupted tail is drawn from the relation's tail pool
-    and is never a true fact, so its label is known.
-  * Ontology: Func(r) axioms are mined from the noisy training split and kept
-    when their confidence >= tau_func (operator G, Sec. 4.3).
+  * Ontology: Func(r) axioms are mined from the CLEAN training split and kept
+    when their confidence >= tau_func (operator G, Sec. 4.3). They play the
+    role of schema constraints (e.g. Wikidata single-value constraints).
+  * Conflict noise (as on SolarKG-VN): every (h, r) key of a functional
+    relation receives, with probability conflict_rate, a second contradicting
+    tail t' drawn from the relation's tail pool.
+  * Random noise: tail-corrupted triples of the remaining relations at the
+    SolarKG-VN rate (5.8% of their triples); false, but not contradicting O.
+  * A corrupted tail is never a true fact, so its label is known.
   * Task A - noisy-fact reasoning: the queries are the (h, r) keys of the test
     split with all asserted tails; metrics as on SolarKG-VN.
   * Task B - link prediction: filtered MRR and Hits@{1,3,10} on the clean test
@@ -33,7 +43,8 @@ from kg.data import KGDataset
 from kg.ontology import Ontology, mine_axioms
 
 URL = "https://github.com/TimDettmers/ConvE/raw/master/{name}.tar.gz"
-DATASETS = ("umls", "kinship", "nations")
+CODEX_URL = "https://raw.githubusercontent.com/tsafavi/codex/master/data/triples/{name}/{split}.txt"
+DATASETS = ("umls", "kinship", "nations", "codex-s")
 
 
 def download(name: str):
@@ -41,8 +52,12 @@ def download(name: str):
     if (target / "train.txt").exists():
         return target
     target.mkdir(parents=True, exist_ok=True)
-    archive = BENCHMARK_DIR / f"{name}.tar.gz"
     print(f"downloading {name} ...")
+    if name.startswith("codex"):
+        for split in ("train", "valid", "test"):
+            urllib.request.urlretrieve(CODEX_URL.format(name=name, split=split), target / f"{split}.txt")
+        return target
+    archive = BENCHMARK_DIR / f"{name}.tar.gz"
     urllib.request.urlretrieve(URL.format(name=name), archive)
     with tarfile.open(archive) as tar:
         for member in tar.getmembers():
@@ -54,7 +69,9 @@ def download(name: str):
     return target
 
 
-def load_benchmark(name: str, noise_rate: float, seed: int):
+def load_benchmark(name: str, noise_rate: float, seed: int, tau_func: float = 0.9,
+                   conflict_rate: float = 0.3):
+    """Clean benchmark + injected noise. Returns (df, truth, functional relations)."""
     path = download(name)
     parts = []
     for split, fname in (("train", "train.txt"), ("val", "valid.txt"), ("test", "test.txt")):
@@ -66,18 +83,34 @@ def load_benchmark(name: str, noise_rate: float, seed: int):
     for h, r, t in clean[["head", "relation", "tail"]].itertuples(index=False):
         truth[(h, r)].add(t)
     clean["label"], clean["source"] = 1, "data"
+    train = clean[clean["split"] == "train"]
+    mined = mine_axioms(train[["head", "relation", "tail"]].itertuples(index=False, name=None))
+    functional = Ontology().extend(mined, tau_func).functional        # schema: Func mined on clean train
     rng = np.random.default_rng(seed)
     pool = clean.groupby("relation")["tail"].unique().to_dict()
+
+    def corrupt(h, r):
+        cands = [c for c in pool[r] if c not in truth[(h, r)]]
+        return cands[int(rng.integers(len(cands)))] if cands else None
+
     noise = []
-    for split, grp in clean.groupby("split"):
+    is_func = clean["relation"].isin(list(functional))
+    for split, grp in clean[is_func].groupby("split"):         # conflict noise, at most one per key
+        keys = grp.drop_duplicates(["head", "relation"])
+        chosen = keys[rng.random(len(keys)) < conflict_rate]
+        for h, r in chosen[["head", "relation"]].itertuples(index=False):
+            t = corrupt(h, r)
+            if t is not None:
+                noise.append((h, r, t, split, "conflict"))
+    for split, grp in clean[~is_func].groupby("split"):        # random, non-contradicting noise
         n = int(round(noise_rate * len(grp)))
-        for h, r, t in grp.sample(n=n, random_state=seed)[["head", "relation", "tail"]].itertuples(index=False):
-            cands = [c for c in pool[r] if c not in truth[(h, r)]]
-            if cands:
-                noise.append((h, r, cands[int(rng.integers(len(cands)))], split))
-    noise = pd.DataFrame(noise, columns=["head", "relation", "tail", "split"])
-    noise["label"], noise["source"] = 0, "noise"
-    return pd.concat([clean, noise], ignore_index=True), dict(truth)
+        for h, r, _ in grp.sample(n=n, random_state=seed)[["head", "relation", "tail"]].itertuples(index=False):
+            t = corrupt(h, r)
+            if t is not None:
+                noise.append((h, r, t, split, "random"))
+    noise = pd.DataFrame(noise, columns=["head", "relation", "tail", "split", "source"])
+    noise["label"] = 0
+    return pd.concat([clean, noise], ignore_index=True), dict(truth), functional
 
 
 @torch.no_grad()
@@ -108,15 +141,14 @@ def link_prediction(scorer, ds: KGDataset, truth: dict) -> dict:
             "Hits@3": float(np.mean(ranks <= 3)), "Hits@10": float(np.mean(ranks <= 10))}
 
 
-def run_benchmark(name: str, cfg: ExperimentConfig, seeds, noise_rate=0.058, tau_func=0.9):
+def run_benchmark(name: str, cfg: ExperimentConfig, seeds, noise_rate=0.058, tau_func=0.9, conflict_rate=0.3):
     per_seed = []
+    fanout = cfg.train.fanout
     for seed in seeds:
-        df, truth = load_benchmark(name, noise_rate, seed)
-        if len(df) > 20000 and not cfg.train.fanout:
-            cfg.train.fanout = (10, 5)        # WN18RR / FB15k-237: sampled message passing
+        df, truth, functional = load_benchmark(name, noise_rate, seed, tau_func, conflict_rate)
+        cfg.train.fanout = fanout or ((10, 5) if len(df) > 20000 else None)   # sampled message passing
         ds = KGDataset(df, truth=truth)
-        gamma_axioms = mine_axioms(ds.split("train")[["head", "relation", "tail"]].itertuples(index=False, name=None))
-        onto = Ontology().extend(gamma_axioms, tau_func)           # O' = O ∪ Γ_tau with O = ∅
+        onto = Ontology(functional=dict(functional))                  # O' = O ∪ Γ_tau with O = ∅
         task = Task(ds, onto, cfg, seed)
         res, lp = {}, {}
         res["Algorithm 1 (paraconsistent)"] = task.alg1()
@@ -134,16 +166,23 @@ def run_benchmark(name: str, cfg: ExperimentConfig, seeds, noise_rate=0.058, tau
         per_seed.append({"reasoning": res, "link_prediction": lp,
                          "stats": {"entities": len(ds.entities), "relations": len(ds.relations),
                                    "triples": len(df), "noise": int((df["label"] == 0).sum()),
+                                   "conflict_noise": int((df["source"] == "conflict").sum()),
+                                   "random_noise": int((df["source"] == "random").sum()),
                                    "functional_relations": len(onto.functional),
+                                   "test_functional_keys": sum(1 for k in task.queries["test"]
+                                                               if onto.is_functional(k[1])),
                                    "test_conflict_keys": sum(1 for k, c in task.queries["test"].items()
                                                              if onto.is_functional(k[1]) and len(c) > 1)}})
-        print(f"  {name} seed {seed} done")
+        print(f"  {name} seed {seed} done: {per_seed[-1]['stats']}", flush=True)
     summary = {
         "stats": per_seed[0]["stats"],
         "reasoning": {m: aggregate([s["reasoning"][m] for s in per_seed]) for m in per_seed[0]["reasoning"]},
         "link_prediction": {m: aggregate([s["link_prediction"][m] for s in per_seed])
                             for m in per_seed[0]["link_prediction"]},
     }
+    cfg.train.fanout = fanout
+    summary["protocol"] = {"noise_rate": noise_rate, "tau_func": tau_func, "conflict_rate": conflict_rate,
+                           "functional_relations": sorted(functional)}
     out = RESULTS_DIR / f"benchmark_{name}.json"
     out.write_text(json.dumps({"summary": summary, "per_seed": per_seed}, indent=2), encoding="utf-8")
     return summary

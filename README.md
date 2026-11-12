@@ -32,7 +32,7 @@ experiments/
   evaluation_metrics.py        correctness, support ratio, conflict mitigation, accuracy, F1
   llm_baselines.py             zero-shot and KG-RAG LLM baselines, with and without the symbolic layer
   scalability.py               runtime vs. |K|, vs. number of agents, naive vs. local fragments
-  benchmarks.py                UMLS / Kinship / Nations (+ WN18RR, FB15k-237): reasoning + link prediction
+  benchmarks.py                UMLS / Kinship / Nations / CoDEx-S (+ WN18RR, FB15k-237): reasoning + link prediction
   plots.py                     figures
 prompts/                       every LLM prompt, verbatim
 tests/                         unit tests (python -m unittest discover -s tests)
@@ -53,9 +53,17 @@ python -m unittest discover -s tests     # 11 tests
 python main.py run            # Tables 7-10 + figures, 5 seeds    -> results/tables.md, results/figures/
 python main.py run --quick    # Algorithms 1-3 only, seed 0
 python main.py scalability    # runtime study                     -> results/scalability.json
-python main.py benchmarks     # UMLS, Kinship, Nations (3 seeds)  -> results/benchmark_*.json
+python main.py benchmarks     # UMLS, Kinship, Nations, CoDEx-S (3 seeds) -> results/benchmark_*.json
 python main.py benchmarks --datasets WN18RR FB15k-237   # larger; uses neighbour sampling
 ```
+
+Benchmark noise protocol (`experiments/benchmarks.py`):
+
+- Func axioms are mined on the clean training split, at confidence ≥ 0.9.
+- Each key (h, r) of a functional relation gets a contradicting tail with probability 0.3.
+- The other relations get 5.8% random tail corruptions.
+
+UMLS, Kinship and Nations have almost no functional relations (Kinship has none), so their test splits contain no conflicts. CoDEx-S (16 functional relations, about 36 conflicting test keys per seed) is the benchmark for conflict resolution.
 
 ### LLM components
 
