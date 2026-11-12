@@ -145,3 +145,32 @@ def scalability(result: dict, name="scalability.png"):
     a2.legend(frameon=False, fontsize=7)
     _style(a2)
     return _save(fig, name)
+
+
+def analysis_robustness(result: dict, name="scorer_robustness.png"):
+    """Scorer choice inside Algorithm 2 under more noise and fewer training triples."""
+    from experiments.analysis import GNN_ONLY, SCORERS
+    methods = [s[0] for s in SCORERS] + [GNN_ONLY]
+    short = ["ID embedding", "Feature MLP", "R-GCN (proposed)", "R-GCN, no paraconsistent"]
+    noise = [s for s in result["settings"] if s["kind"] == "noise"]
+    frac = [s for s in result["settings"] if s["kind"] == "noise" and s["value"] == noise[0]["value"]] + \
+        [s for s in result["settings"] if s["kind"] == "train_fraction"]
+    panels = [(noise, "accuracy", "Accuracy", "Injected noise triples", lambda s: s["noise_triples"]),
+              (noise, "conflict_resolution_acc", "Conflict resolution acc.", "Injected noise triples",
+               lambda s: s["noise_triples"]),
+              (frac, "accuracy", "Accuracy", "Fraction of training triples", lambda s: s["train_fraction"])]
+    fig, axes = plt.subplots(1, 3, figsize=(12, 3.8))
+    for ax, (settings, key, ylab, xlab, xf) in zip(axes, panels):
+        xs = [xf(s) for s in settings]
+        for i, m in enumerate(methods):
+            ys = [s["metrics"][m][key]["mean"] for s in settings]
+            ax.plot(xs, ys, color=SERIES[i], lw=2, marker="osD^"[i], ms=(9, 7, 5, 6)[i],
+                    markeredgecolor=SURFACE, markeredgewidth=1, label=short[i], zorder=3 + i)
+        ax.set_xticks(xs)
+        ax.set_xlabel(xlab, color=INK)
+        ax.set_ylabel(ylab, color=INK)
+        if xlab.startswith("Fraction"):
+            ax.invert_xaxis()
+        _style(ax)
+    axes[0].legend(frameon=False, fontsize=8, loc="lower left")
+    return _save(fig, name)

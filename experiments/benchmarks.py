@@ -24,27 +24,34 @@ Protocol
   * Task B - link prediction: filtered MRR and Hits@{1,3,10} on the clean test
     triples (head and tail prediction) for every scorer, trained on the noisy
     training split.
+  * Training (identical for every model, BENCH_TRAIN): 1-N scoring with
+    multi-label BCE over all entities for (h, r, ?) and (?, r, t), Adam 3e-3,
+    up to 300 epochs, model selection on filtered validation MRR.
+  * Each seed is written to results/bench_shards/<name>_seed<s>.json, so the
+    seeds can run in parallel; summarize_benchmark merges them.
 """
 from __future__ import annotations
 
+import copy
 import json
 import tarfile
+import time
 import urllib.request
 from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-import torch
-
 from config import BENCHMARK_DIR, RESULTS_DIR, ExperimentConfig
 from experiments.evaluation_metrics import aggregate
 from experiments.pipeline import NEURAL_BASELINES, Task
 from kg.data import KGDataset
 from kg.ontology import Ontology, mine_axioms
+from models.kge import rank_metrics
 
 URL = "https://github.com/TimDettmers/ConvE/raw/master/{name}.tar.gz"
 CODEX_URL = "https://raw.githubusercontent.com/tsafavi/codex/master/data/triples/{name}/{split}.txt"
 DATASETS = ("umls", "kinship", "nations", "codex-s")
+SHARD_DIR = RESULTS_DIR / "bench_shards"
 
 
 def download(name: str):
@@ -113,40 +120,27 @@ def load_benchmark(name: str, noise_rate: float, seed: int, tau_func: float = 0.
     return pd.concat([clean, noise], ignore_index=True), dict(truth), functional
 
 
-@torch.no_grad()
 def link_prediction(scorer, ds: KGDataset, truth: dict) -> dict:
-    model, emb = scorer.model, scorer.emb
+    """Filtered MRR / Hits@k on the clean test triples (head and tail prediction)."""
     test = ds.split("test")
-    test = test[test["label"] == 1]
-    x = ds.encode(test)
-    heads_of = defaultdict(set)
-    for (h, r), ts in truth.items():
-        for t in ts:
-            heads_of[(t, r)].add(h)
-    ranks = []
-    for side in ("tail", "head"):
-        fixed = x[:, 0] if side == "tail" else x[:, 2]
-        scores = model.tail_scores(fixed, x[:, 1], emb) if side == "tail" else model.head_scores(fixed, x[:, 1], emb)
-        for i, (h, r, t) in enumerate(test[["head", "relation", "tail"]].itertuples(index=False)):
-            target = ds.ent2id[t] if side == "tail" else ds.ent2id[h]
-            known = truth.get((h, r), set()) if side == "tail" else heads_of[(t, r)]
-            s = scores[i].clone()
-            target_score = s[target].item()
-            filt = [ds.ent2id[e] for e in known if e in ds.ent2id and ds.ent2id[e] != target]
-            if filt:
-                s[filt] = -float("inf")
-            ranks.append(1 + int((s > target_score).sum()))
-    ranks = np.array(ranks, dtype=float)
-    return {"MRR": float(np.mean(1 / ranks)), "Hits@1": float(np.mean(ranks <= 1)),
-            "Hits@3": float(np.mean(ranks <= 3)), "Hits@10": float(np.mean(ranks <= 10))}
+    return rank_metrics(scorer.model, ds, test[test["label"] == 1], truth, scorer.emb)
 
 
-def run_benchmark(name: str, cfg: ExperimentConfig, seeds, noise_rate=0.058, tau_func=0.9, conflict_rate=0.3):
+# Training protocol for the benchmarks (the same for every model): 1-N scoring
+# with multi-label BCE, model selection on filtered validation MRR.
+BENCH_TRAIN = {"objective": "kvsall", "select_metric": "mrr", "epochs": 300, "eval_every": 5,
+               "patience": 50, "batch_size": 128, "lr": 3e-3, "label_smoothing": 0.0, "fanout": None}
+
+
+def run_benchmark(name: str, cfg: ExperimentConfig, seeds, noise_rate=0.058, tau_func=0.9, conflict_rate=0.3,
+                  train_overrides: dict | None = None):
+    cfg = copy.deepcopy(cfg)
+    for k, v in {**BENCH_TRAIN, **(train_overrides or {})}.items():
+        setattr(cfg.train, k, v)
     per_seed = []
-    fanout = cfg.train.fanout
     for seed in seeds:
+        t0 = time.perf_counter()
         df, truth, functional = load_benchmark(name, noise_rate, seed, tau_func, conflict_rate)
-        cfg.train.fanout = fanout or ((10, 5) if len(df) > 20000 else None)   # sampled message passing
         ds = KGDataset(df, truth=truth)
         onto = Ontology(functional=dict(functional))                  # O' = O ∪ Γ_tau with O = ∅
         task = Task(ds, onto, cfg, seed)
@@ -173,16 +167,31 @@ def run_benchmark(name: str, cfg: ExperimentConfig, seeds, noise_rate=0.058, tau
                                                                if onto.is_functional(k[1])),
                                    "test_conflict_keys": sum(1 for k, c in task.queries["test"].items()
                                                              if onto.is_functional(k[1]) and len(c) > 1)}})
-        print(f"  {name} seed {seed} done: {per_seed[-1]['stats']}", flush=True)
+        per_seed[-1]["seconds"] = time.perf_counter() - t0
+        per_seed[-1]["seed"] = seed
+        print(f"  {name} seed {seed} done in {per_seed[-1]['seconds']:.0f}s: {per_seed[-1]['stats']}", flush=True)
+        print("    MRR " + ", ".join(f"{m}={v['MRR']:.3f}" for m, v in lp.items()), flush=True)
+        SHARD_DIR.mkdir(parents=True, exist_ok=True)
+        (SHARD_DIR / f"{name}_seed{seed}.json").write_text(json.dumps({
+            **per_seed[-1], "protocol": {"noise_rate": noise_rate, "tau_func": tau_func,
+                                         "conflict_rate": conflict_rate, "functional_relations": sorted(functional),
+                                         "train": vars(cfg.train)}}, indent=2), encoding="utf-8")
+    return summarize_benchmark(name)
+
+
+def summarize_benchmark(name: str) -> dict:
+    """Merge every per-seed shard of a benchmark (several processes may share the seeds)."""
+    runs = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(SHARD_DIR.glob(f"{name}_seed*.json"))]
+    if not runs:
+        raise SystemExit(f"no shards for {name} in {SHARD_DIR}")
     summary = {
-        "stats": per_seed[0]["stats"],
-        "reasoning": {m: aggregate([s["reasoning"][m] for s in per_seed]) for m in per_seed[0]["reasoning"]},
-        "link_prediction": {m: aggregate([s["link_prediction"][m] for s in per_seed])
-                            for m in per_seed[0]["link_prediction"]},
+        "seeds": [r["seed"] for r in runs],
+        "stats": runs[0]["stats"],
+        "reasoning": {m: aggregate([r["reasoning"][m] for r in runs]) for m in runs[0]["reasoning"]},
+        "link_prediction": {m: aggregate([r["link_prediction"][m] for r in runs])
+                            for m in runs[0]["link_prediction"]},
+        "protocol": runs[0]["protocol"],
     }
-    cfg.train.fanout = fanout
-    summary["protocol"] = {"noise_rate": noise_rate, "tau_func": tau_func, "conflict_rate": conflict_rate,
-                           "functional_relations": sorted(functional)}
     out = RESULTS_DIR / f"benchmark_{name}.json"
-    out.write_text(json.dumps({"summary": summary, "per_seed": per_seed}, indent=2), encoding="utf-8")
+    out.write_text(json.dumps({"summary": summary, "per_seed": runs}, indent=2), encoding="utf-8")
     return summary

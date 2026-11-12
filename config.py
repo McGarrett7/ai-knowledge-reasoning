@@ -67,6 +67,17 @@ class TrainConfig:
     # such as (10, 5) samples that many in-edges per node and layer, which
     # makes the cost of one epoch linear in |K| (scalability study).
     fanout: tuple | None = None
+    # Training objective:
+    #   "negsampling" - k tail-corrupted negatives per positive, BCE (Sec. 7.4; SolarKG-VN)
+    #   "kvsall"      - 1-N scoring (ConvE-style): every (h, r) and (?, r, t) query is
+    #                   scored against all entities with multi-label BCE; standard for
+    #                   link prediction on the benchmarks
+    objective: str = "negsampling"
+    select_metric: str = "acc"           # model selection on validation: "acc" or "mrr"
+    eval_every: int = 1                  # epochs between validation evaluations
+    label_smoothing: float = 0.0         # kvsall only
+    emb_dropout: float = 0.0             # kvsall only: dropout on the query embedding (ConvE-style)
+    weight_decay: float = 0.0
     # "cuda" when a GPU is visible (e.g. Kaggle), otherwise "cpu"; override with KG_DEVICE
     device: str = field(default_factory=lambda: _default_device())
 
@@ -76,8 +87,13 @@ class ReasonConfig:
     # Belief update operator U (Sec. 5): mu' = lambda*mu + (1-lambda)*w'
     lam: float = 0.5
     # tau: admission threshold for B^(1); gamma: threshold for T_pred.
-    # with prior μ = 1 and λ = 0.5, μ' = 0.5 + 0.5 w' lies in [0.5, 1]
-    tau_grid: tuple = (0.0, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95)
+    # Decision thresholds on the learned reliability w' (shared by every method):
+    # the neural baselines accept a candidate iff w' >= θ; Algorithm 2/3 admit it
+    # iff μ' >= τ with μ' = 0.5 + 0.5 w' (prior μ = 1, λ = 0.5), so τ = 0.5 + 0.5 θ
+    # gives both the same resolution (fair comparison).
+    theta_grid: tuple = (0.01, 0.02, 0.03) + tuple(round(k / 20, 2) for k in range(1, 20))
+    tau_grid: tuple = (0.0,) + tuple(round(0.5 + 0.5 * t, 4) for t in
+                                     (0.01, 0.02, 0.03) + tuple(round(k / 20, 2) for k in range(1, 20)))
     gamma: float = 0.5
     # delta: minimum weight margin needed to commit to one fragment
     delta_grid: tuple = (0.0, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.3)

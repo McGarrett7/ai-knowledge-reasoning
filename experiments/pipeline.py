@@ -52,7 +52,7 @@ class Task:
         cfg = self.cfg.train
         train_df = self.ds.split("train") if train_df is None else train_df
         graph = None
-        if encoder != "embed":
+        if encoder not in ("embed", "id"):
             graph = self.ds.build_graph(train_df if graph_df is None else graph_df)
         torch.manual_seed(self.seed)
         model = KGModel(encoder, decoder, self.ds, graph, cfg)
@@ -120,7 +120,7 @@ class Task:
                 if acc:
                     out[key] = Conclusion(acc, {t: cand[t] for t in acc}, {})
             return out
-        return self.tuned(run, {"theta": tuple(np.round(np.linspace(0.05, 0.95, 19), 2))})
+        return self.tuned(run, {"theta": self.cfg.reason.theta_grid})
 
     def majority(self):
         out = {}

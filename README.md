@@ -33,6 +33,7 @@ experiments/
   llm_baselines.py             zero-shot and KG-RAG LLM baselines, with and without the symbolic layer
   scalability.py               runtime vs. |K|, vs. number of agents, naive vs. local fragments
   benchmarks.py                UMLS / Kinship / Nations / CoDEx-S (+ WN18RR, FB15k-237): reasoning + link prediction
+  analysis.py                  scorer choice under noise / label scarcity; heterogeneous agents
   plots.py                     figures
 prompts/                       every LLM prompt, verbatim
 tests/                         unit tests (python -m unittest discover -s tests)
@@ -44,7 +45,7 @@ results/                       generated tables (tables.md), JSON results, figur
 
 ```bash
 pip install -r requirements.txt          # Python >= 3.10; CPU is enough
-python -m unittest discover -s tests     # 11 tests
+python -m unittest discover -s tests     # 13 tests
 ```
 
 ## Reproducing the experiments
@@ -53,6 +54,8 @@ python -m unittest discover -s tests     # 11 tests
 python main.py run            # Tables 7-10 + figures, 5 seeds    -> results/tables.md, results/figures/
 python main.py run --quick    # Algorithms 1-3 only, seed 0
 python main.py scalability    # runtime study                     -> results/scalability.json
+python main.py robustness     # scorer choice vs. noise level / training size -> results/analysis.md
+python main.py agents         # heterogeneous agents, agent weighting          -> results/analysis.md
 python main.py benchmarks     # UMLS, Kinship, Nations, CoDEx-S (3 seeds) -> results/benchmark_*.json
 python main.py benchmarks --datasets WN18RR FB15k-237   # larger; uses neighbour sampling
 ```
@@ -62,6 +65,8 @@ Benchmark noise protocol (`experiments/benchmarks.py`):
 - Func axioms are mined on the clean training split, at confidence ≥ 0.9.
 - Each key (h, r) of a functional relation gets a contradicting tail with probability 0.3.
 - The other relations get 5.8% random tail corruptions.
+- Training is the same for every model: 1-N scoring (multi-label BCE over all entities, head and tail queries), Adam 3e-3, up to 300 epochs. The model is selected on filtered validation MRR.
+- Each seed is saved to `results/bench_shards/`, so seeds can run on different GPUs. `python main.py benchmarks --datasets codex-s --summary-only` merges them.
 
 UMLS, Kinship and Nations have almost no functional relations (Kinship has none), so their test splits contain no conflicts. CoDEx-S (16 functional relations, about 36 conflicting test keys per seed) is the benchmark for conflict resolution.
 
@@ -119,7 +124,7 @@ All metrics are computed on the test-split queries. A query is a key (h, r) toge
 | Conflict mitigation | 1 − (conflict keys whose answer still holds >1 tail) / (conflict keys) |
 | Conflict resolution acc. | conflict keys answered with exactly the true tail |
 
-Thresholds τ and δ, and the decision thresholds of the baselines, are tuned on the validation split only.
+Thresholds τ and δ, and the decision thresholds θ of the baselines, are tuned on the validation split only (by F1). τ and θ use the same grid in units of the learned reliability w′ (`ReasonConfig.theta_grid`).
 
 ## License
 

@@ -154,5 +154,43 @@ class TestExtraction(unittest.TestCase):
         self.assertTrue((pred["weight"] == 0.9).all())
 
 
+class TestModels(unittest.TestCase):
+    def _toy(self):
+        rows = []
+        for i in range(12):
+            rows.append((f"e{i}", "r1", f"e{(i + 1) % 12}", "train" if i < 8 else ("val" if i < 10 else "test")))
+            rows.append((f"e{i}", "r2", f"e{(i * 5) % 12}", "train"))
+        df = pd.DataFrame(rows, columns=["head", "relation", "tail", "split"])
+        df["label"], df["source"] = 1, "data"
+        from kg.data import KGDataset
+        return KGDataset(df)
+
+    def test_score_all_matches_forward(self):
+        import torch
+        from models.kge import Decoder
+        torch.manual_seed(0)
+        E, x, r = torch.randn(7, 8), torch.randn(3, 8), torch.tensor([0, 1, 1])
+        for kind in ("bilinear", "distmult", "complex", "transe", "rotate"):
+            dec = Decoder(kind, 2, 8)
+            for side in ("tail", "head"):
+                fast = dec.score_all(x, r, E, side)
+                xs, es = x.unsqueeze(1).expand(-1, 7, -1), E.unsqueeze(0).expand(3, -1, -1)
+                slow = dec(xs, r, es) if side == "tail" else dec(es, r, xs)
+                self.assertTrue(torch.allclose(fast, slow, atol=1e-5), (kind, side))
+
+    def test_kvsall_training_and_ranking(self):
+        from config import TrainConfig
+        from models.kge import KGModel, rank_metrics, train_model
+        ds = self._toy()
+        cfg = TrainConfig(dim=16, epochs=3, objective="kvsall", select_metric="mrr", device="cpu")
+        for enc in ("id", "rgcn"):
+            graph = ds.build_graph() if enc == "rgcn" else None
+            model = KGModel(enc, "distmult", ds, graph, cfg)
+            info = train_model(model, ds, ds.split("train"), cfg, seed=0)
+            self.assertEqual(info["select_metric"], "mrr")
+            m = rank_metrics(model, ds, ds.split("test"), ds.truth)
+            self.assertTrue(0 < m["MRR"] <= 1 and m["Hits@1"] <= m["Hits@10"])
+
+
 if __name__ == "__main__":
     unittest.main()

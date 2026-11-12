@@ -3,6 +3,8 @@
     python main.py run            # main SolarKG-VN experiment (Tables 7-10, Figures)
     python main.py run --quick    # Algorithms 1-3 only, one seed
     python main.py scalability    # runtime / scalability study
+    python main.py robustness     # scorer choice under more noise / fewer training triples
+    python main.py agents         # heterogeneous agents: equal vs. accuracy vs. log-odds weights
     python main.py benchmarks     # UMLS, Kinship, Nations, CoDEx-S (+ --datasets WN18RR FB15k-237)
     python main.py llm --backend anthropic            # LLM baselines with Claude
     python main.py llm --backend ollama --model qwen2.5:7b-instruct
@@ -31,9 +33,13 @@ def main(argv=None):
     sub.add_parser("summarize", help="aggregate results/shards into tables and figures")
     s = sub.add_parser("scalability")
     s.add_argument("--sizes", type=int, nargs="*")
+    for name in ("robustness", "agents"):
+        a = sub.add_parser(name)
+        a.add_argument("--seeds", type=int, nargs="*", default=[0, 1, 2])
     b = sub.add_parser("benchmarks")
     b.add_argument("--datasets", nargs="*", default=["umls", "kinship", "nations", "codex-s"])
     b.add_argument("--seeds", type=int, nargs="*", default=[0, 1, 2])
+    b.add_argument("--summary-only", action="store_true", help="merge results/bench_shards only")
     for name in ("llm", "extract"):
         q = sub.add_parser(name)
         q.add_argument("--backend", choices=["anthropic", "deepseek", "ollama", "none"], default="none" if name == "extract" else "anthropic")
@@ -70,10 +76,16 @@ def main(argv=None):
         plots.scalability(out)
         print(json.dumps(out["loglog_slope"], indent=2))
 
+    elif args.cmd in ("robustness", "agents"):
+        from experiments import analysis
+        run = analysis.run_robustness if args.cmd == "robustness" else analysis.run_agents
+        run(cfg, seeds=tuple(args.seeds))
+        print((RESULTS_DIR / "analysis.md").read_text(encoding="utf-8"))
+
     elif args.cmd == "benchmarks":
-        from experiments.benchmarks import run_benchmark
+        from experiments.benchmarks import run_benchmark, summarize_benchmark
         for name in args.datasets:
-            summary = run_benchmark(name, cfg, args.seeds)
+            summary = summarize_benchmark(name) if args.summary_only else run_benchmark(name, cfg, args.seeds)
             print(name, json.dumps({m: {k: round(v["mean"], 4) for k, v in s.items() if k in ("accuracy", "f1")}
                                     for m, s in summary["reasoning"].items()}, indent=1))
 

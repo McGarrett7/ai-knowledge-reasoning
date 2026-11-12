@@ -2,7 +2,9 @@
 
 A model is an entity *encoder* plus a relation-specific *decoder*:
 
-  encoders  embed    - Xavier-initialised entity table; entities that carry
+  encoders  id       - plain Xavier-initialised entity table (classic shallow
+                       KGE; no features, no message passing)
+            embed    - entity table; entities that carry
                        features (locations: coordinates, values: magnitude)
                        are embedded with an MLP of those features instead,
                        so unseen test locations still get a representation
@@ -115,10 +117,14 @@ class Encoder(nn.Module):
     def __init__(self, kind: str, ds: KGDataset, graph: Graph | None, cfg: TrainConfig):
         super().__init__()
         self.kind = kind
-        self.base = BaseEmbedding(len(ds.entities), cfg.dim, ds.features, ds.has_features)
+        if kind == "id":
+            self.base = BaseEmbedding(len(ds.entities), cfg.dim, None, torch.zeros(len(ds.entities), dtype=torch.bool))
+        else:
+            self.base = BaseEmbedding(len(ds.entities), cfg.dim, ds.features, ds.has_features)
         self.graph = graph
         self.dropout = nn.Dropout(0.1)
-        if kind == "embed":
+        if kind in ("embed", "id"):
+            self.graph = None
             return
         assert graph is not None, f"{kind} encoder needs a graph"
         self.groups = [(r, (graph.rel == r).nonzero(as_tuple=True)[0]) for r in range(graph.num_relations)]
@@ -138,7 +144,7 @@ class Encoder(nn.Module):
         """Full-graph embeddings, or embeddings of `sub = (nodes, local_graph)` only."""
         nodes, graph = (None, self.graph) if sub is None else sub
         x0 = self.base(nodes)
-        if self.kind == "embed":
+        if self.graph is None:
             return x0
         groups = self.groups if sub is None else \
             [(r, idx) for r in graph.rel.unique().tolist() for idx in [(graph.rel == r).nonzero(as_tuple=True)[0]]]
@@ -202,6 +208,26 @@ class Decoder(nn.Module):
         dist = torch.sqrt(dr ** 2 + di ** 2 + 1e-9).sum(-1) / math.sqrt(h.shape[-1])
         return self.scale * (self.gamma - dist)
 
+    def score_all(self, x: torch.Tensor, r: torch.Tensor, E: torch.Tensor, side: str = "tail") -> torch.Tensor:
+        """Logits of (x, r, e) (side="tail") or (e, r, x) (side="head") for every row e of E. Shape (B, N).
+        Multiplicative decoders use one matrix product; distance decoders broadcast."""
+        if self.kind == "bilinear":
+            q = torch.einsum("bd,bde->be", x, self.W[r]) if side == "tail" else torch.einsum("bde,be->bd", self.W[r], x)
+            return q @ E.T
+        if self.kind == "distmult":
+            return (x * self.rel(r)) @ E.T
+        if self.kind == "complex":
+            xr, xi = x.chunk(2, -1)
+            rr, ri = self.rel(r).chunk(2, -1)
+            er, ei = E.chunk(2, -1)
+            if side == "tail":       # coefficients of t_re / t_im in Re(<h, r, conj t>)
+                return (xr * rr - xi * ri) @ er.T + (xi * rr + xr * ri) @ ei.T
+            return (rr * xr + ri * xi) @ er.T + (rr * xi - ri * xr) @ ei.T
+        n = E.shape[0]
+        f = x.unsqueeze(1).expand(-1, n, -1)
+        allx = E.unsqueeze(0).expand(x.shape[0], -1, -1)
+        return self.forward(f, r, allx) if side == "tail" else self.forward(allx, r, f)
+
 
 class KGModel(nn.Module):
     def __init__(self, encoder: str, decoder: str, ds: KGDataset, graph: Graph | None, cfg: TrainConfig):
@@ -238,13 +264,9 @@ class KGModel(nn.Module):
 
     def _all_scores(self, fixed, r, emb, side, chunk):
         out = []
-        n = emb.shape[0]
         for s in range(0, len(fixed), chunk):
-            f = emb[fixed[s:s + chunk].to(emb.device)].unsqueeze(1).expand(-1, n, -1)
-            allx = emb.unsqueeze(0).expand(f.shape[0], -1, -1)
-            rr = r[s:s + chunk].to(emb.device)
-            h, t = (f, allx) if side == "tail" else (allx, f)
-            out.append(self.decoder(h, rr, t).cpu())
+            x = emb[fixed[s:s + chunk].to(emb.device)]
+            out.append(self.decoder.score_all(x, r[s:s + chunk].to(emb.device), emb, side).cpu())
         return torch.cat(out)
 
 
@@ -310,39 +332,124 @@ def validation_set(ds: KGDataset, seed: int):
     return pos, neg
 
 
+@torch.no_grad()
+def rank_metrics(model: KGModel, ds: KGDataset, triples_df, truth: dict, emb=None) -> dict:
+    """Filtered MRR / Hits@{1,3,10} over head and tail prediction (Bordes et al. 2013).
+    `truth` maps (h, r) to every known true tail (train, valid and test)."""
+    emb = model.embed() if emb is None else emb
+    x = ds.encode(triples_df)
+    heads_of = {}
+    for (h, r), ts in truth.items():
+        for t in ts:
+            heads_of.setdefault((t, r), set()).add(h)
+    ranks = []
+    rows = list(triples_df[["head", "relation", "tail"]].itertuples(index=False))
+    for side in ("tail", "head"):
+        fixed = x[:, 0] if side == "tail" else x[:, 2]
+        scores = model._all_scores(fixed, x[:, 1], emb, side, chunk=128)
+        for i, (h, r, t) in enumerate(rows):
+            target = int(x[i, 2] if side == "tail" else x[i, 0])
+            known = truth.get((h, r), ()) if side == "tail" else heads_of.get((t, r), ())
+            s = scores[i]
+            target_score = s[target].item()
+            filt = [ds.ent2id[e] for e in known if e in ds.ent2id and ds.ent2id[e] != target]
+            if filt:
+                s = s.clone()
+                s[filt] = -float("inf")
+            ranks.append(1 + int((s > target_score).sum()))
+    ranks = np.array(ranks, dtype=float)
+    return {"MRR": float(np.mean(1 / ranks)), "Hits@1": float(np.mean(ranks <= 1)),
+            "Hits@3": float(np.mean(ranks <= 3)), "Hits@10": float(np.mean(ranks <= 10))}
+
+
+def _kvsall_queries(pos_all: torch.Tensor):
+    """1-N queries: (side, fixed entity, relation, target ids, row positions)."""
+    groups = {}
+    for i, (h, r, t) in enumerate(pos_all.tolist()):
+        for side, x, y in (("tail", h, t), ("head", t, h)):
+            g = groups.setdefault((side, x, r), ([], []))
+            g[0].append(y)
+            g[1].append(i)
+    return [(side, x, r, ys, pos) for (side, x, r), (ys, pos) in groups.items()]
+
+
 def train_model(model: KGModel, ds: KGDataset, train_df, cfg: TrainConfig, seed: int,
                 verbose: bool = False) -> dict:
-    """Contrastive training (Sec. 7.4): maximise log σ(f(h,r,t)) + Σ log(1-σ(f(h,r,t'))).
+    """Training of f_θ on the triples the model may observe (`train_df`: the
+    noisy training split, or an agent's local share of it).
 
-    `train_df` are the triples the model may observe (the noisy training split,
-    or an agent's local share of it). For GNN encoders the positives of each
-    batch are removed from message passing, so the model cannot read a target
-    edge off the graph.
+    objective "negsampling" (Sec. 7.4): maximise log σ(f(h,r,t)) + Σ log(1-σ(f(h,r,t'))).
+    objective "kvsall": every query (h, r, ?) and (?, r, t) is scored against all
+    entities; multi-label BCE with the observed answers as positives.
+    For GNN encoders the positives of each batch are removed from message
+    passing, so the model cannot read a target edge off the graph.
+    Model selection: validation accuracy (one corrupted negative per positive)
+    or filtered validation MRR (cfg.select_metric).
     """
     torch.manual_seed(seed)
     gen = torch.Generator().manual_seed(seed)
     pos_all = ds.encode(train_df)
     edge_ids = None
-    if model.encoder.kind != "embed":
+    if model.encoder.graph is not None:
         # map each training triple to its two edges in the encoder graph
         g = model.encoder.graph
         position = {idx: i for i, idx in enumerate(g.row_index)}
         edge_ids = g.train_edge_of[[position[i] for i in train_df.index]]
     pool = ds.tail_pool("train")
     val_pos, val_neg = validation_set(ds, seed)
-    opt = torch.optim.Adam(model.parameters(), lr=cfg.lr)
-    best = (-1.0, None, 0)
+    val_df = ds.split("val")
+    val_df = val_df[val_df["label"] == 1].drop_duplicates(["head", "relation", "tail"])
+    opt = torch.optim.Adam(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+    best = (-1.0, None, 0, 0.0)
     history = []
     n_edges = len(model.encoder.graph.src) if edge_ids is not None else 0
+    kvsall = cfg.objective == "kvsall"
     sampler = None
-    if edge_ids is not None and cfg.fanout:
+    if edge_ids is not None and cfg.fanout and not kvsall:
         sampler = NeighborSampler(model.cpu_graph, len(ds.entities), cfg.fanout)
+    queries = _kvsall_queries(pos_all) if kvsall else None
+    n_ent = len(ds.entities)
+    dev = model.device
     for epoch in range(1, cfg.epochs + 1):
         model.train()
         t0 = time.perf_counter()
-        perm = torch.randperm(len(pos_all), generator=gen)
         total = 0.0
-        for s in range(0, len(perm), cfg.batch_size):
+        if kvsall:
+            perm = torch.randperm(len(queries), generator=gen)
+            for s in range(0, len(perm), cfg.batch_size):
+                batch = [queries[i] for i in perm[s:s + cfg.batch_size].tolist()]
+                mask = None
+                if edge_ids is not None:
+                    mask = torch.ones(n_edges)
+                    rows = torch.tensor([p for q in batch for p in q[4]])
+                    mask[edge_ids[rows].reshape(-1)] = 0.0
+                emb = model.encoder(mask.to(dev) if mask is not None else None)
+                loss = 0.0
+                for side in ("tail", "head"):
+                    part = [q for q in batch if q[0] == side]
+                    if not part:
+                        continue
+                    x = torch.tensor([q[1] for q in part], device=dev)
+                    r = torch.tensor([q[2] for q in part], device=dev)
+                    q = F.dropout(emb[x], cfg.emb_dropout, training=True) if cfg.emb_dropout else emb[x]
+                    logits = model.decoder.score_all(q, r, emb, side)
+                    target = torch.zeros(len(part), n_ent, device=dev)
+                    ri = torch.tensor([j for j, q in enumerate(part) for _ in q[3]], device=dev)
+                    ci = torch.tensor([y for q in part for y in q[3]], device=dev)
+                    target[ri, ci] = 1.0
+                    if cfg.label_smoothing:
+                        target = target * (1 - cfg.label_smoothing) + cfg.label_smoothing / n_ent
+                    loss = loss + F.binary_cross_entropy_with_logits(logits, target, reduction="sum") / n_ent
+                loss = loss / len(batch)
+                opt.zero_grad()
+                loss.backward()
+                opt.step()
+                total += float(loss.detach()) * len(batch)
+            n_items = len(queries)
+        else:
+            perm = torch.randperm(len(pos_all), generator=gen)
+            n_items = len(perm)
+        for s in (range(0, len(perm), cfg.batch_size) if not kvsall else ()):
             b = perm[s:s + cfg.batch_size]
             pos = pos_all[b]
             neg = corrupt_tails(pos, cfg.negatives, pool, len(ds.entities), gen)
@@ -367,18 +474,27 @@ def train_model(model: KGModel, ds: KGDataset, train_df, cfg: TrainConfig, seed:
             loss.backward()
             opt.step()
             total += float(loss.detach()) * len(b)
+        seconds = time.perf_counter() - t0
+        if epoch % cfg.eval_every and epoch != cfg.epochs:
+            history.append({"epoch": epoch, "loss": total / n_items, "seconds": seconds})
+            continue
         emb = model.embed()
         acc = float(((model.prob(val_pos, emb) >= 0.5).float().mean() +
                      (model.prob(val_neg, emb) < 0.5).float().mean()) / 2)
-        history.append({"epoch": epoch, "loss": total / len(perm), "val_acc": acc,
-                        "seconds": time.perf_counter() - t0})
+        rec = {"epoch": epoch, "loss": total / n_items, "val_acc": acc, "seconds": seconds}
+        score = acc
+        if cfg.select_metric == "mrr":
+            rec["val_mrr"] = score = rank_metrics(model, ds, val_df, ds.truth, emb)["MRR"]
+        history.append(rec)
         if verbose:
-            print(f"  [{model.name}] epoch {epoch:02d} loss={total / len(perm):.4f} val_acc={acc:.4f}")
-        if acc > best[0]:
-            best = (acc, copy.deepcopy(model.state_dict()), epoch)
+            print(f"  [{model.name}] epoch {epoch:03d} loss={rec['loss']:.4f} val_acc={acc:.4f}"
+                  + (f" val_mrr={rec['val_mrr']:.4f}" if "val_mrr" in rec else ""), flush=True)
+        if score > best[0]:
+            best = (score, copy.deepcopy(model.state_dict()), epoch, acc)
         elif epoch - best[2] >= cfg.patience:
             break
     model.load_state_dict(best[1])
     model.eval()
-    return {"history": history, "best_epoch": best[2], "best_val_acc": best[0],
+    return {"history": history, "best_epoch": best[2], "best_val_acc": best[3],
+            "best_val_score": best[0], "select_metric": cfg.select_metric,
             "train_seconds": float(np.sum([h["seconds"] for h in history]))}
