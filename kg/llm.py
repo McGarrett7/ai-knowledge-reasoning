@@ -15,6 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 import time
+import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -162,10 +163,76 @@ class OllamaBackend(LLMBackend):
         return {"backend": self.name, "model": self.model, "temperature": 0}
 
 
+@dataclass
+class DeepSeekBackend(LLMBackend):
+    """DeepSeek (or any OpenAI-compatible chat-completions endpoint).
+
+    Key:      env DEEPSEEK_API_KEY   (never hard-code it)
+    Endpoint: env DEEPSEEK_BASE_URL  (default https://api.deepseek.com; set it to
+              your provider's URL if the key was issued by a third-party gateway)
+    JSON mode is requested with response_format=json_object and the schema is
+    given in the system prompt; the reply is validated by json.loads.
+    """
+    model: str = "deepseek-flash"
+    base_url: str = ""
+    name: str = "deepseek"
+    max_tokens: int = 8000
+
+    def __post_init__(self):
+        import os
+        self.api_key = os.environ.get("DEEPSEEK_API_KEY", "")
+        if not self.api_key:
+            raise LLMError("set the DEEPSEEK_API_KEY environment variable")
+        self.base_url = (self.base_url or os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")).rstrip("/")
+
+    def _raw(self, system, user, schema):
+        system = (system + "\n\nReply with a single JSON object that conforms to this JSON schema:\n"
+                  + json.dumps(schema))
+        body = json.dumps({
+            "model": self.model,
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            "response_format": {"type": "json_object"},
+            "temperature": 0,
+            "max_tokens": self.max_tokens,
+            "stream": False,
+        }).encode()
+        req = urllib.request.Request(f"{self.base_url}/chat/completions", data=body, headers={
+            "Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"})
+        last = None
+        for attempt in range(4):
+            try:
+                with urllib.request.urlopen(req, timeout=600) as resp:
+                    data = json.loads(resp.read())
+                break
+            except urllib.error.HTTPError as exc:
+                detail = exc.read().decode(errors="replace")[:300]
+                if exc.code in (429, 500, 502, 503) and attempt < 3:
+                    time.sleep(2 ** attempt * 5)
+                    last = exc
+                    continue
+                raise LLMError(f"DeepSeek HTTP {exc.code}: {detail}") from exc
+            except OSError as exc:
+                last = exc
+                time.sleep(2 ** attempt * 5)
+        else:
+            raise LLMError(f"cannot reach {self.base_url}: {last}")
+        choice = data["choices"][0]
+        if choice.get("finish_reason") == "length":
+            raise LLMError("reply truncated (max_tokens); use a smaller batch")
+        usage = data.get("usage", {})
+        return choice["message"]["content"], {"input_tokens": usage.get("prompt_tokens", 0),
+                                              "output_tokens": usage.get("completion_tokens", 0)}
+
+    def describe(self):
+        return {"backend": self.name, "model": self.model, "base_url": self.base_url, "temperature": 0}
+
+
 def make_backend(kind: str, model: str | None = None, tag: str = "llm") -> LLMBackend:
     cache = RESULTS_DIR / "llm_cache" / f"{tag}_{kind}_{(model or 'default').replace(':', '-')}.jsonl"
     if kind == "anthropic":
         return ClaudeBackend(model=model or "claude-opus-5-5", cache_path=cache)
     if kind == "ollama":
         return OllamaBackend(model=model or "qwen2.5:7b-instruct", cache_path=cache)
-    raise ValueError(f"unknown LLM backend {kind!r} (use 'anthropic' or 'ollama')")
+    if kind == "deepseek":
+        return DeepSeekBackend(model=model or "deepseek-flash", cache_path=cache)
+    raise ValueError(f"unknown LLM backend {kind!r} (use 'anthropic', 'deepseek' or 'ollama')")

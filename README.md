@@ -59,13 +59,19 @@ python main.py benchmarks --datasets WN18RR FB15k-237   # larger; uses neighbour
 
 ### LLM components
 
-The LLM components need either an Anthropic API key or a local Ollama server.
+The LLM components need an Anthropic or DeepSeek API key, or a local Ollama server. The Kaggle notebook `kaggle_run.ipynb` uses DeepSeek.
 
 ```bash
 # Claude (default model claude-opus-5-5, effort "low", JSON-schema output)
 pip install anthropic && export ANTHROPIC_API_KEY=...
 python main.py llm --backend anthropic                    # zero-shot and KG-RAG baselines
 python main.py extract --backend anthropic --max-docs 500 # LLM extraction quality
+
+# DeepSeek V4.1 Flash (OpenAI-compatible API, temperature 0, JSON mode)
+export DEEPSEEK_API_KEY=...                       # never commit the key
+export DEEPSEEK_BASE_URL=https://api.deepseek.com # or your gateway's URL
+python main.py llm --backend deepseek --model deepseek-flash
+python main.py extract --backend deepseek --model deepseek-flash --max-docs 500
 
 # Local open-weight model through Ollama (temperature 0)
 ollama pull qwen2.5:7b-instruct

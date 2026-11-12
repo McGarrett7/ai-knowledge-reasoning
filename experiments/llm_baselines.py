@@ -46,7 +46,8 @@ ANSWER_SCHEMA = {
 }
 
 # USD per million tokens (input, output); used only for the cost column
-PRICES = {"claude-opus-5-5": (4.0, 20.0), "claude-sonnet-5-5": (2.0, 10.0), "claude-haiku-5-5": (0.10, 0.50)}
+# DeepSeek: official off-peak rate (peak is 2x); third-party gateways price differently
+PRICES = {"deepseek-flash": (0.15, 0.60), "claude-opus-5-5": (4.0, 20.0), "claude-sonnet-5-5": (2.0, 10.0), "claude-haiku-5-5": (0.10, 0.50)}
 
 
 class Retriever:

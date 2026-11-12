@@ -34,7 +34,7 @@ def main(argv=None):
     b.add_argument("--seeds", type=int, nargs="*", default=[0, 1, 2])
     for name in ("llm", "extract"):
         q = sub.add_parser(name)
-        q.add_argument("--backend", choices=["anthropic", "ollama", "none"], default="none" if name == "extract" else "anthropic")
+        q.add_argument("--backend", choices=["anthropic", "deepseek", "ollama", "none"], default="none" if name == "extract" else "anthropic")
         q.add_argument("--model")
         q.add_argument("--max-queries", type=int)
         q.add_argument("--max-docs", type=int, default=500)
