@@ -20,7 +20,7 @@ import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from config import PROMPTS_DIR, RESULTS_DIR
+from config import LLM_DIR, PROMPTS_DIR
 
 
 def load_prompt(name: str) -> str:
@@ -254,7 +254,7 @@ def safe_name(s: str) -> str:
 
 
 def make_backend(kind: str, model: str | None = None, tag: str = "llm") -> LLMBackend:
-    cache = RESULTS_DIR / "llm_cache" / f"{tag}_{kind}_{safe_name(model or 'default')}.jsonl"
+    cache = LLM_DIR / "cache" / f"{tag}_{kind}_{safe_name(model or 'default')}.jsonl"
     if kind == "anthropic":
         return ClaudeBackend(model=model or "claude-opus-5-5", cache_path=cache)
     if kind == "ollama":

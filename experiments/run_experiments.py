@@ -4,7 +4,8 @@ from __future__ import annotations
 import json
 import time
 
-from config import KG_CSV, RESULTS_DIR, ExperimentConfig, ensure_dirs
+from config import MAIN_DIR as RESULTS_DIR
+from config import KG_CSV, ExperimentConfig, ensure_dirs
 from experiments import plots
 from experiments.evaluation_metrics import aggregate
 from experiments.pipeline import NEURAL_BASELINES, Task, run_seed
@@ -47,7 +48,7 @@ SHARDS = RESULTS_DIR / "shards"
 
 
 def run_main(cfg: ExperimentConfig, seeds=None, quick=False, verbose=False, summarize_after=True):
-    """Run the given seeds; each seed is saved to results/shards/seed_<s>.json so
+    """Run the given seeds; each seed is saved to results/main/shards/seed_<s>.json so
     several processes (e.g. one per GPU) can share the work. Then summarize."""
     ensure_dirs()
     SHARDS.mkdir(parents=True, exist_ok=True)
@@ -75,11 +76,11 @@ def run_main(cfg: ExperimentConfig, seeds=None, quick=False, verbose=False, summ
 
 
 def summarize(cfg: ExperimentConfig) -> dict:
-    """Aggregate every seed shard in results/shards into tables, JSON and figures."""
+    """Aggregate every seed shard in results/main/shards into tables, JSON and figures."""
     shards = sorted((json.loads(p.read_text(encoding="utf-8")) for p in SHARDS.glob("seed_*.json")),
                     key=lambda r: r["seed"])
     if not shards:
-        raise SystemExit("no shards in results/shards - run `python main.py run` first")
+        raise SystemExit("no shards in results/main/shards - run `python main.py run` first")
     quick = any(r["quick"] for r in shards)
     common = set.intersection(*(set(r["noisy"]) for r in shards))
     noisy = {m: aggregate([r["noisy"][m] for r in shards]) for m in shards[0]["noisy"] if m in common}

@@ -21,6 +21,12 @@ ROOT = Path(__file__).resolve().parent
 DATASET_DIR = ROOT / "dataset"
 RESULTS_DIR = ROOT / "results"
 FIGURES_DIR = RESULTS_DIR / "figures"
+MAIN_DIR = RESULTS_DIR / "main"              # SolarKG-VN main experiment (Tables 7-10)
+BENCH_RESULTS_DIR = RESULTS_DIR / "benchmarks"
+ANALYSIS_DIR = RESULTS_DIR / "analysis"      # robustness / heterogeneous agents
+SCALABILITY_DIR = RESULTS_DIR / "scalability"
+LLM_DIR = RESULTS_DIR / "llm"                # LLM baselines, extraction, response cache
+LOG_DIR = RESULTS_DIR / "logs"
 PROMPTS_DIR = ROOT / "prompts"
 BENCHMARK_DIR = DATASET_DIR / "benchmarks"
 
@@ -110,5 +116,6 @@ class ExperimentConfig:
 
 
 def ensure_dirs():
-    for d in (RESULTS_DIR, FIGURES_DIR, BENCHMARK_DIR):
+    for d in (RESULTS_DIR, FIGURES_DIR, BENCHMARK_DIR, MAIN_DIR, BENCH_RESULTS_DIR, ANALYSIS_DIR,
+              SCALABILITY_DIR, LLM_DIR, LOG_DIR):
         d.mkdir(parents=True, exist_ok=True)

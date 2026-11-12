@@ -38,7 +38,14 @@ experiments/
 prompts/                       every LLM prompt, verbatim
 tests/                         unit tests (python -m unittest discover -s tests)
 THEORY.md                      Proposition 1, proofs of Theorems 1-3, complexity
-results/                       generated tables (tables.md), JSON results, figures
+results/
+  main/                        SolarKG-VN: main_results.json, tables.md, shards/ (one file per seed)
+  benchmarks/                  benchmark_<name>.json, shards/
+  analysis/                    analysis.md, analysis_robustness.json, analysis_agents.json
+  scalability/                 scalability.json
+  llm/                         LLM baselines, extraction results, cache/ (LLM responses)
+  figures/                     all figures
+  logs/                        run logs
 ```
 
 ## Setup
@@ -51,12 +58,12 @@ python -m unittest discover -s tests     # 13 tests
 ## Reproducing the experiments
 
 ```bash
-python main.py run            # Tables 7-10 + figures, 5 seeds    -> results/tables.md, results/figures/
+python main.py run            # Tables 7-10 + figures, 5 seeds    -> results/main/tables.md, results/figures/
 python main.py run --quick    # Algorithms 1-3 only, seed 0
-python main.py scalability    # runtime study                     -> results/scalability.json
-python main.py robustness     # scorer choice vs. noise level / training size -> results/analysis.md
-python main.py agents         # heterogeneous agents, agent weighting          -> results/analysis.md
-python main.py benchmarks     # UMLS, Kinship, Nations, CoDEx-S (3 seeds) -> results/benchmark_*.json
+python main.py scalability    # runtime study                     -> results/scalability/scalability.json
+python main.py robustness     # scorer choice vs. noise level / training size -> results/analysis/analysis.md
+python main.py agents         # heterogeneous agents, agent weighting          -> results/analysis/analysis.md
+python main.py benchmarks     # UMLS, Kinship, Nations, CoDEx-S (3 seeds) -> results/benchmarks/benchmark_*.json
 python main.py benchmarks --datasets WN18RR FB15k-237   # larger; uses neighbour sampling
 ```
 
@@ -66,7 +73,7 @@ Benchmark noise protocol (`experiments/benchmarks.py`):
 - Each key (h, r) of a functional relation gets a contradicting tail with probability 0.3.
 - The other relations get 5.8% random tail corruptions.
 - Training is the same for every model: 1-N scoring (multi-label BCE over all entities, head and tail queries), Adam 3e-3, up to 300 epochs. The model is selected on filtered validation MRR.
-- Each seed is saved to `results/bench_shards/`, so seeds can run on different GPUs. `python main.py benchmarks --datasets codex-s --summary-only` merges them.
+- Each seed is saved to `results/benchmarks/shards/`, so seeds can run on different GPUs. `python main.py benchmarks --datasets codex-s --summary-only` merges them.
 
 UMLS, Kinship and Nations have almost no functional relations (Kinship has none), so their test splits contain no conflicts. CoDEx-S (16 functional relations, about 36 conflicting test keys per seed) is the benchmark for conflict resolution.
 
@@ -91,7 +98,7 @@ ollama pull qwen2.5:7b-instruct
 python main.py llm --backend ollama --model qwen2.5:7b-instruct
 ```
 
-LLM responses are cached under `results/llm_cache/`, so a rerun is free. Each result file
+LLM responses are cached under `results/llm/cache/`, so a rerun is free. Each result file
 records the model, the number of calls, the token counts, the latency and (for Claude) the cost.
 
 ## Data

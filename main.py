@@ -18,7 +18,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from config import KG_CSV, RASTER_PATH, RESULTS_DIR, SOLAR_CSV, ExperimentConfig, ensure_dirs  # noqa: E402
+from config import (ANALYSIS_DIR, KG_CSV, LLM_DIR, MAIN_DIR, RASTER_PATH, SOLAR_CSV,  # noqa: E402
+                    ExperimentConfig, ensure_dirs)
 
 
 def main(argv=None):
@@ -30,7 +31,7 @@ def main(argv=None):
     r.add_argument("--epochs", type=int)
     r.add_argument("--verbose", action="store_true")
     r.add_argument("--no-summary", action="store_true", help="only write per-seed shards (multi-GPU)")
-    sub.add_parser("summarize", help="aggregate results/shards into tables and figures")
+    sub.add_parser("summarize", help="aggregate results/main/shards into tables and figures")
     s = sub.add_parser("scalability")
     s.add_argument("--sizes", type=int, nargs="*")
     for name in ("robustness", "agents"):
@@ -39,7 +40,7 @@ def main(argv=None):
     b = sub.add_parser("benchmarks")
     b.add_argument("--datasets", nargs="*", default=["umls", "kinship", "nations", "codex-s"])
     b.add_argument("--seeds", type=int, nargs="*", default=[0, 1, 2])
-    b.add_argument("--summary-only", action="store_true", help="merge results/bench_shards only")
+    b.add_argument("--summary-only", action="store_true", help="merge results/benchmarks/shards only")
     for name in ("llm", "extract"):
         q = sub.add_parser(name)
         q.add_argument("--backend", choices=["anthropic", "deepseek", "ollama", "none"], default="none" if name == "extract" else "anthropic")
@@ -62,12 +63,12 @@ def main(argv=None):
         seeds = args.seeds if args.seeds else ([0] if args.quick else cfg.seeds)
         run_main(cfg, seeds, quick=args.quick, verbose=args.verbose, summarize_after=not args.no_summary)
         if not args.no_summary:
-            print((RESULTS_DIR / "tables.md").read_text(encoding="utf-8"))
+            print((MAIN_DIR / "tables.md").read_text(encoding="utf-8"))
 
     elif args.cmd == "summarize":
         from experiments.run_experiments import summarize
         summarize(cfg)
-        print((RESULTS_DIR / "tables.md").read_text(encoding="utf-8"))
+        print((MAIN_DIR / "tables.md").read_text(encoding="utf-8"))
 
     elif args.cmd == "scalability":
         from experiments import plots
@@ -80,7 +81,7 @@ def main(argv=None):
         from experiments import analysis
         run = analysis.run_robustness if args.cmd == "robustness" else analysis.run_agents
         run(cfg, seeds=tuple(args.seeds))
-        print((RESULTS_DIR / "analysis.md").read_text(encoding="utf-8"))
+        print((ANALYSIS_DIR / "analysis.md").read_text(encoding="utf-8"))
 
     elif args.cmd == "benchmarks":
         from experiments.benchmarks import run_benchmark, summarize_benchmark
@@ -120,9 +121,9 @@ def main(argv=None):
             metrics["backend"] = extractor.backend.describe()
             metrics["usage"] = vars(extractor.backend.usage)
         from kg.llm import safe_name
-        out = RESULTS_DIR / f"extraction_{safe_name(extractor.name)}.json"
+        out = LLM_DIR / f"extraction_{safe_name(extractor.name)}.json"
         out.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
-        pred.to_csv(RESULTS_DIR / "extracted_triples.csv", index=False)
+        pred.to_csv(LLM_DIR / "extracted_triples.csv", index=False)
         print(json.dumps(metrics, indent=2))
 
     elif args.cmd == "build":

@@ -72,7 +72,7 @@ check takes $O(1)$ for a fixed $O$, so the pass costs **$O(|K|)$ expected time a
 No fragment is ever enumerated.
 
 On the noisy SolarKG-VN, $|MC(K)| \approx 10^{33}$, so exhaustive enumeration is infeasible.
-The local decomposition answers all queries in milliseconds: see `results/scalability.json`,
+The local decomposition answers all queries in milliseconds: see `results/scalability/scalability.json`,
 fields `log10_fragments` and `naive_vs_local`.
 
 **Algorithm 1.** $O(|K| + \sum_{q \in Q} |\mathrm{cand}(q)|)$.
@@ -93,7 +93,7 @@ volume is $(1+\rho(m-1))\,|T|$, so with sampling the training cost is
 $O((1+\rho(m-1))\,|T|\, f_1 f_2 d^2)$. Aggregation costs $O(m \sum_q |\mathrm{cand}(q)|)$.
 
 The cost is linear in $m$ for a fixed $\rho$, and constant in $m$ when $\rho = 0$. Empirical
-log–log slopes are reported in `results/scalability.json`.
+log–log slopes are reported in `results/scalability/scalability.json`.
 
 ## Theorem 1 (soundness of Algorithm 1)
 

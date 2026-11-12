@@ -35,7 +35,8 @@ import numpy as np
 import pandas as pd
 
 from algorithms.algorithm3_multiagent import Agent, partition_agents
-from config import KG_CSV, REL_POTENTIAL, RESULTS_DIR, ExperimentConfig, ensure_dirs
+from config import ANALYSIS_DIR as RESULTS_DIR
+from config import KG_CSV, REL_POTENTIAL, ExperimentConfig, ensure_dirs
 from experiments.evaluation_metrics import aggregate
 from experiments.pipeline import Task
 from kg.data import KGDataset, load_triples, prepare_solar

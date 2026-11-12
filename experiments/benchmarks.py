@@ -27,7 +27,7 @@ Protocol
   * Training (identical for every model, BENCH_TRAIN): 1-N scoring with
     multi-label BCE over all entities for (h, r, ?) and (?, r, t), Adam 3e-3,
     up to 300 epochs, model selection on filtered validation MRR.
-  * Each seed is written to results/bench_shards/<name>_seed<s>.json, so the
+  * Each seed is written to results/benchmarks/shards/<name>_seed<s>.json, so the
     seeds can run in parallel; summarize_benchmark merges them.
 """
 from __future__ import annotations
@@ -41,7 +41,8 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-from config import BENCHMARK_DIR, RESULTS_DIR, ExperimentConfig
+from config import BENCH_RESULTS_DIR as RESULTS_DIR
+from config import BENCHMARK_DIR, ExperimentConfig
 from experiments.evaluation_metrics import aggregate
 from experiments.pipeline import NEURAL_BASELINES, Task
 from kg.data import KGDataset
@@ -51,7 +52,7 @@ from models.kge import rank_metrics
 URL = "https://github.com/TimDettmers/ConvE/raw/master/{name}.tar.gz"
 CODEX_URL = "https://raw.githubusercontent.com/tsafavi/codex/master/data/triples/{name}/{split}.txt"
 DATASETS = ("umls", "kinship", "nations", "codex-s")
-SHARD_DIR = RESULTS_DIR / "bench_shards"
+SHARD_DIR = RESULTS_DIR / "shards"
 
 
 def download(name: str):

@@ -24,7 +24,8 @@ from algorithms.algorithm1_paraconsistent import algorithm1_paraconsistent_reaso
 from algorithms.algorithm2_learning import ModelScorer, algorithm2_learning_reasoning
 from algorithms.algorithm3_multiagent import Agent, algorithm3_multiagent_reasoning, partition_agents
 from algorithms.paraconsistent import ParaconsistentKB, naive_maximal_consistent_subsets
-from config import RESULTS_DIR, SOLAR_CSV, ExperimentConfig
+from config import SCALABILITY_DIR as RESULTS_DIR
+from config import SOLAR_CSV, ExperimentConfig
 from kg.construction import samples_to_triples, synthetic_upscale
 from kg.data import KGDataset, assign_split, inject_noise
 from kg.ontology import Ontology, solar_ontology

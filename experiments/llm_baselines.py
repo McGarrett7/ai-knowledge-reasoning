@@ -20,7 +20,7 @@ from scipy.spatial import cKDTree
 
 from algorithms.algorithm2_learning import algorithm2_learning_reasoning
 from algorithms.paraconsistent import Conclusion
-from config import RESULTS_DIR
+from config import LLM_DIR as RESULTS_DIR
 from kg.llm import LLMError, load_prompt, safe_name
 from kg.ontology import is_location, location_coords
 
