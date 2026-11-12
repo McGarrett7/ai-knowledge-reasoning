@@ -27,6 +27,8 @@ def main(argv=None):
     r.add_argument("--quick", action="store_true")
     r.add_argument("--epochs", type=int)
     r.add_argument("--verbose", action="store_true")
+    r.add_argument("--no-summary", action="store_true", help="only write per-seed shards (multi-GPU)")
+    sub.add_parser("summarize", help="aggregate results/shards into tables and figures")
     s = sub.add_parser("scalability")
     s.add_argument("--sizes", type=int, nargs="*")
     b = sub.add_parser("benchmarks")
@@ -52,7 +54,13 @@ def main(argv=None):
         if args.epochs:
             cfg.train.epochs = args.epochs
         seeds = args.seeds if args.seeds else ([0] if args.quick else cfg.seeds)
-        run_main(cfg, seeds, quick=args.quick, verbose=args.verbose)
+        run_main(cfg, seeds, quick=args.quick, verbose=args.verbose, summarize_after=not args.no_summary)
+        if not args.no_summary:
+            print((RESULTS_DIR / "tables.md").read_text(encoding="utf-8"))
+
+    elif args.cmd == "summarize":
+        from experiments.run_experiments import summarize
+        summarize(cfg)
         print((RESULTS_DIR / "tables.md").read_text(encoding="utf-8"))
 
     elif args.cmd == "scalability":

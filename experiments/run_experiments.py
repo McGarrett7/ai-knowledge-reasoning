@@ -43,37 +43,55 @@ def table(rows: dict, cols: list) -> str:
                           for name, m in rows.items())
 
 
-def run_main(cfg: ExperimentConfig, seeds=None, quick=False, verbose=False) -> dict:
+SHARDS = RESULTS_DIR / "shards"
+
+
+def run_main(cfg: ExperimentConfig, seeds=None, quick=False, verbose=False, summarize_after=True):
+    """Run the given seeds; each seed is saved to results/shards/seed_<s>.json so
+    several processes (e.g. one per GPU) can share the work. Then summarize."""
     ensure_dirs()
+    SHARDS.mkdir(parents=True, exist_ok=True)
     seeds = list(seeds or cfg.seeds)
     clean = load_triples(KG_CSV)
     onto = solar_ontology(cfg.data.pv_range)
-    noisy_runs, clean_runs, stats = [], [], []
     for seed in seeds:
         t0 = time.perf_counter()
         df = prepare_solar(clean, cfg.data, seed, noisy=True)
-        stats.append(dataset_stats(clean, df, onto))
+        stats = dataset_stats(clean, df, onto)
         ds = KGDataset(df, freqs=cfg.train.fourier_freqs, knn=cfg.data.knn_neighbors)
-        noisy_runs.append(run_seed(Task(ds, onto, cfg, seed), include_baselines=not quick,
-                                   include_ablations=not quick, verbose=verbose))
+        noisy = run_seed(Task(ds, onto, cfg, seed), include_baselines=not quick,
+                         include_ablations=not quick, verbose=verbose)
         dfc = prepare_solar(clean, cfg.data, seed, noisy=False)
         dsc = KGDataset(dfc, freqs=cfg.train.fourier_freqs, knn=cfg.data.knn_neighbors)
-        clean_runs.append(run_seed(Task(dsc, onto, cfg, seed), include_baselines=False, include_ablations=False))
-        print(f"seed {seed}: {time.perf_counter() - t0:.0f}s  " + "  ".join(
-            f"{plots.SHORT[a]} acc={noisy_runs[-1]['metrics'][a]['accuracy']:.4f}" for a in ALGS))
+        cleanr = run_seed(Task(dsc, onto, cfg, seed), include_baselines=False, include_ablations=False)
+        shard = {"seed": seed, "quick": quick, "device": cfg.train.device, "stats": stats,
+                 "noisy": noisy["metrics"], "clean": cleanr["metrics"], "params": noisy["params"],
+                 "kb": noisy["kb"], "timing": noisy["timing"],
+                 "history": noisy["logs"]["proposed_scorer"]["history"]}
+        (SHARDS / f"seed_{seed}.json").write_text(json.dumps(shard, indent=2, default=str), encoding="utf-8")
+        print(f"seed {seed} [{cfg.train.device}]: {time.perf_counter() - t0:.0f}s  " + "  ".join(
+            f"{plots.SHORT[a]} acc={noisy['metrics'][a]['accuracy']:.4f}" for a in ALGS), flush=True)
+    return summarize(cfg) if summarize_after else None
 
-    noisy = {m: aggregate([r["metrics"][m] for r in noisy_runs]) for m in noisy_runs[0]["metrics"]}
-    clean_s = {m: aggregate([r["metrics"][m] for r in clean_runs]) for m in clean_runs[0]["metrics"]}
-    timing = {k: aggregate([{"s": r["timing"][k]} for r in noisy_runs])["s"] for k in noisy_runs[0]["timing"]}
-    result = {"config": {"seeds": seeds, "data": vars(cfg.data), "train": vars(cfg.train),
-                         "reason": vars(cfg.reason)},
-              "dataset": stats[0],
-              "noisy_conflicts_per_seed": [s["noisy_conflicts"] for s in stats],
+
+def summarize(cfg: ExperimentConfig) -> dict:
+    """Aggregate every seed shard in results/shards into tables, JSON and figures."""
+    shards = sorted((json.loads(p.read_text(encoding="utf-8")) for p in SHARDS.glob("seed_*.json")),
+                    key=lambda r: r["seed"])
+    if not shards:
+        raise SystemExit("no shards in results/shards - run `python main.py run` first")
+    quick = any(r["quick"] for r in shards)
+    common = set.intersection(*(set(r["noisy"]) for r in shards))
+    noisy = {m: aggregate([r["noisy"][m] for r in shards]) for m in shards[0]["noisy"] if m in common}
+    clean_s = {m: aggregate([r["clean"][m] for r in shards]) for m in shards[0]["clean"]}
+    timing = {k: aggregate([{"s": r["timing"][k]} for r in shards])["s"] for k in shards[0]["timing"]}
+    result = {"config": {"seeds": [r["seed"] for r in shards], "devices": sorted({r["device"] for r in shards}),
+                         "data": vars(cfg.data), "train": vars(cfg.train), "reason": vars(cfg.reason)},
+              "dataset": shards[0]["stats"],
+              "noisy_conflicts_per_seed": [r["stats"]["noisy_conflicts"] for r in shards],
               "clean": clean_s, "noisy": noisy, "timing_seconds": timing,
-              "per_seed": [{"seed": s, "noisy": r["metrics"], "clean": c["metrics"], "params": r["params"],
-                            "kb": r["kb"], "timing": r["timing"]}
-                           for s, r, c in zip(seeds, noisy_runs, clean_runs)],
-              "training_history_seed0": noisy_runs[0]["logs"]["proposed_scorer"]["history"]}
+              "per_seed": [{k: r[k] for k in ("seed", "noisy", "clean", "params", "kb", "timing")} for r in shards],
+              "training_history_seed0": shards[0]["history"]}
     (RESULTS_DIR / "main_results.json").write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
     write_tables(result, quick)
     plots.performance(noisy)
