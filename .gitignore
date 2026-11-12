@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Testing / caches
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# Docs
+docs/
+
+# Large raster data
+*.tif
+*.tiff
+
+# Generated artefacts
+results/llm_cache/
+results/*.log
+dataset/benchmarks/
+
+# Smoke-test / generated results (regenerate with main.py)
+results/*
+!results/.gitkeep

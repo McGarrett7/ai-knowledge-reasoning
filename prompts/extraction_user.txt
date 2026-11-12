@@ -1,0 +1,3 @@
+Extract triples from each note below. Report the note id with every triple.
+
+{documents}

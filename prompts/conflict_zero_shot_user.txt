@@ -1,0 +1,3 @@
+Score every candidate below. Each query lists the location, the relation, and the candidate values that were reported.
+
+{queries}

@@ -1,33 +1,24 @@
-from collections import defaultdict
-# ============================================
-# Algorithm 1
-# Standard Paraconsistent Reasoning
-# ============================================
+"""Algorithm 1 - Standard Paraconsistent Reasoning (Sec. 6.1).
 
-def algorithm1_paraconsistent_reasoning(kg):
+Input  : ontology O, triple set T', query keys (h, r, ?)
+Output : for each query, the tails entailed by at least one admissible
+         fragment F ∈ MC(O ∪ T')  (credulous entailment, Definition 5).
 
-    beliefs = defaultdict(set)
+No conflict is resolved: if two consistent tails compete, both are returned.
+Range/domain axioms of O still remove triples that are inconsistent on their own.
+"""
+from __future__ import annotations
 
-    for _, row in kg.iterrows():
-        h = row["head"]
-        r = row["relation"]
-        t = row["tail"]
+from algorithms.paraconsistent import Conclusion, ParaconsistentKB
 
-        beliefs[(h, r)].add(t)
 
-    # check conflicts
-    conflicts = 0
-
-    for key in beliefs:
-        if len(beliefs[key]) > 1:
-            conflicts += 1
-
-    total = len(beliefs)
-
-    correctness = (total - conflicts) / total
-
-    return {
-        "correctness": correctness,
-        "conflicts": conflicts,
-        "total_rules": total
-    }
+def algorithm1_paraconsistent_reasoning(kb: ParaconsistentKB, queries) -> dict:
+    out = {}
+    for key in queries:
+        tails = kb.credulous(key)
+        if not tails:
+            continue
+        ev = kb.candidates(key)
+        out[key] = Conclusion(tails=sorted(tails), support={t: ev[t] for t in tails},
+                              weight={t: 1.0 for t in tails})
+    return out

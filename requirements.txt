@@ -1,0 +1,10 @@
+numpy>=1.26
+pandas>=2.1
+scipy>=1.11
+torch>=2.2
+matplotlib>=3.8
+psutil>=5.9
+Pillow>=10.0
+# optional
+rasterio>=1.3      # reading the georeferenced GIS GeoTIFF (main.py build)
+anthropic>=1.0     # Claude backend for LLM extraction / LLM baselines

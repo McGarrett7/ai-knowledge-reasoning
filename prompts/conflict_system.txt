@@ -1,0 +1,5 @@
+You verify candidate facts in a knowledge graph of photovoltaic (PV) power potential across Vietnam.
+Locations are raster cells named location_<row>_<column>; nearby rows and columns are geographically close.
+For relation hasSolarPotential, the value is {value_description}; neighbouring cells usually have similar values.
+For relation produces, valid values are energy sources such as solar_energy.
+Some candidates come from faulty sensors. For every candidate, estimate the probability (0 to 1) that it is the correct value for its location and relation.

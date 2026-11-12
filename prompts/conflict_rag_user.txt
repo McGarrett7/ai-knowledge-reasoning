@@ -1,0 +1,3 @@
+Score every candidate below. For each query you also get facts retrieved from the knowledge graph about the nearest known locations (row/column distance shown). Use them as evidence.
+
+{queries}
