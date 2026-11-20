@@ -1,0 +1,394 @@
+{
+  "seed": 2,
+  "quick": false,
+  "device": "cuda:0",
+  "stats": {
+    "clean_triples": 5000,
+    "locations": 4683,
+    "relations": [
+      "hasSolarPotential",
+      "produces"
+    ],
+    "clean_conflicts": 0,
+    "split": {
+      "test": 1000,
+      "train": 3200,
+      "val": 800
+    },
+    "noisy_triples": 5300,
+    "injected": 300,
+    "noisy_conflicts": 289,
+    "noisy_conflict_rate": 0.0578,
+    "injected_rejected_by_ontology": 177,
+    "ontology_axioms": [
+      "EnergySource(solar_energy)",
+      "EnergySource \u2291 Thing",
+      "Location \u2291 Thing",
+      "PVValue \u2291 Thing",
+      "Func(hasSolarPotential)  [conf=1.000]",
+      "Func(produces)  [conf=1.000]",
+      "dom(hasSolarPotential) = Location",
+      "dom(produces) = Location",
+      "dom(nearTo) = Location",
+      "ran(hasSolarPotential) = [0.0, 255.0]",
+      "ran(produces) = EnergySource"
+    ]
+  },
+  "noisy": {
+    "Algorithm 1 (paraconsistent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 0.982,
+      "accuracy": 0.9794319294809011,
+      "recall": 1.0,
+      "f1": 0.9896091044037605,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 0.6086956521739131,
+      "conflict_resolution_acc": 0.6086956521739131
+    },
+    "Algorithm 2 (learning-assisted)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.998,
+      "recall": 0.998,
+      "f1": 0.998,
+      "support_ratio": 1.902,
+      "conflicts": 46,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.9565217391304348
+    },
+    "Algorithm 3 (multi-agent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.999,
+      "recall": 0.999,
+      "f1": 0.999,
+      "support_ratio": 4.271,
+      "conflicts": 46,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.9782608695652174
+    },
+    "Ablation: Alg.1 without range axioms": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 0.954,
+      "accuracy": 0.9523809523809523,
+      "recall": 1.0,
+      "f1": 0.975609756097561,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 0.0,
+      "conflict_resolution_acc": 0.0
+    },
+    "Ablation: GNN scorer, no paraconsistent layer": {
+      "queries": 1000,
+      "answered": 983,
+      "correctness": 0.9949135300101729,
+      "accuracy": 0.9949392712550608,
+      "recall": 0.983,
+      "f1": 0.988933601609658,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 0.8913043478260869,
+      "conflict_resolution_acc": 0.8695652173913043
+    },
+    "Ablation: Alg.2 with shallow scorer (no GNN)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 1.896,
+      "conflicts": 46,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Ablation: Alg.3 with equal agent weights": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.999,
+      "recall": 0.999,
+      "f1": 0.999,
+      "support_ratio": 4.271,
+      "conflicts": 46,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.9782608695652174
+    },
+    "Majority vote": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 0.954,
+      "accuracy": 0.9523809523809523,
+      "recall": 1.0,
+      "f1": 0.975609756097561,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 0.0,
+      "conflict_resolution_acc": 0.0
+    },
+    "Rule-based (spatial kNN rules)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.973,
+      "recall": 0.973,
+      "f1": 0.973,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.41304347826086957
+    },
+    "TransE": {
+      "queries": 1000,
+      "answered": 972,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 0.972,
+      "f1": 0.9858012170385395,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "DistMult": {
+      "queries": 1000,
+      "answered": 994,
+      "correctness": 0.993963782696177,
+      "accuracy": 0.993006993006993,
+      "recall": 0.994,
+      "f1": 0.993503248375812,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 0.8695652173913043,
+      "conflict_resolution_acc": 0.8695652173913043
+    },
+    "ComplEx": {
+      "queries": 1000,
+      "answered": 983,
+      "correctness": 0.9979654120040692,
+      "accuracy": 0.9979695431472081,
+      "recall": 0.983,
+      "f1": 0.9904282115869018,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 0.9565217391304348,
+      "conflict_resolution_acc": 0.9347826086956522
+    },
+    "RotatE": {
+      "queries": 1000,
+      "answered": 983,
+      "correctness": 0.9969481180061037,
+      "accuracy": 0.9969574036511156,
+      "recall": 0.983,
+      "f1": 0.9899295065458208,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 0.9347826086956522,
+      "conflict_resolution_acc": 0.9130434782608695
+    },
+    "R-GCN": {
+      "queries": 1000,
+      "answered": 975,
+      "correctness": 0.9948717948717949,
+      "accuracy": 0.9948979591836735,
+      "recall": 0.975,
+      "f1": 0.984848484848485,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 0.8913043478260869,
+      "conflict_resolution_acc": 0.8695652173913043
+    },
+    "CompGCN": {
+      "queries": 1000,
+      "answered": 984,
+      "correctness": 0.9959349593495935,
+      "accuracy": 0.9959514170040485,
+      "recall": 0.984,
+      "f1": 0.9899396378269618,
+      "support_ratio": 1.0,
+      "conflicts": 46,
+      "conflict_mitigation": 0.9130434782608696,
+      "conflict_resolution_acc": 0.9130434782608695
+    }
+  },
+  "clean": {
+    "Algorithm 1 (paraconsistent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 1.0,
+      "conflicts": 0,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Algorithm 2 (learning-assisted)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 1.904,
+      "conflicts": 0,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Algorithm 3 (multi-agent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 4.259,
+      "conflicts": 0,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    }
+  },
+  "params": {
+    "alg2": {
+      "tau": 0.0,
+      "delta": 0.0
+    },
+    "alg3": {
+      "tau": 0.0,
+      "delta": 0.01
+    }
+  },
+  "kb": {
+    "triples": 5300,
+    "conflict_keys": 115,
+    "rejected_by_ontology": 177,
+    "log10_fragments": 36.02717957380329
+  },
+  "timing": {
+    "Algorithm 1": 0.005270240000015747,
+    "Algorithm 2": 9.68730541399998,
+    "Algorithm 3": 20.61068561899998,
+    "TransE": 5.444821948999902,
+    "DistMult": 2.8888935119999815,
+    "ComplEx": 4.500747965999949,
+    "RotatE": 7.526939653999989,
+    "R-GCN": 9.736833112999989,
+    "CompGCN": 48.26831647999995
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 0.5497777944527762,
+      "val_acc": 0.9618749618530273,
+      "seconds": 0.7361474219999877
+    },
+    {
+      "epoch": 2,
+      "loss": 0.27524610114230946,
+      "val_acc": 0.9706249833106995,
+      "seconds": 0.332709704000024
+    },
+    {
+      "epoch": 3,
+      "loss": 0.22705185501091896,
+      "val_acc": 0.9681249856948853,
+      "seconds": 0.32919470500002035
+    },
+    {
+      "epoch": 4,
+      "loss": 0.201450637246989,
+      "val_acc": 0.9724999666213989,
+      "seconds": 0.3521396799999934
+    },
+    {
+      "epoch": 5,
+      "loss": 0.1671651702068257,
+      "val_acc": 0.9774999618530273,
+      "seconds": 0.3311377050000033
+    },
+    {
+      "epoch": 6,
+      "loss": 0.14942949190012034,
+      "val_acc": 0.9743750095367432,
+      "seconds": 0.33565242599996736
+    },
+    {
+      "epoch": 7,
+      "loss": 0.13333149150141135,
+      "val_acc": 0.9774999618530273,
+      "seconds": 0.33450905400002284
+    },
+    {
+      "epoch": 8,
+      "loss": 0.12332948703019452,
+      "val_acc": 0.9806250333786011,
+      "seconds": 0.3317729909999798
+    },
+    {
+      "epoch": 9,
+      "loss": 0.10266640685193848,
+      "val_acc": 0.9787499904632568,
+      "seconds": 0.32959118700000545
+    },
+    {
+      "epoch": 10,
+      "loss": 0.10889923971279039,
+      "val_acc": 0.9768749475479126,
+      "seconds": 0.3332420719999618
+    },
+    {
+      "epoch": 11,
+      "loss": 0.09984415247137139,
+      "val_acc": 0.9743750095367432,
+      "seconds": 0.3549509399999806
+    },
+    {
+      "epoch": 12,
+      "loss": 0.09114376220206215,
+      "val_acc": 0.9787499904632568,
+      "seconds": 0.3443708219999735
+    },
+    {
+      "epoch": 13,
+      "loss": 0.07823097128788443,
+      "val_acc": 0.9762499928474426,
+      "seconds": 0.3432946209999841
+    },
+    {
+      "epoch": 14,
+      "loss": 0.07614324770128689,
+      "val_acc": 0.9787499904632568,
+      "seconds": 0.3447837129999698
+    },
+    {
+      "epoch": 15,
+      "loss": 0.0740783514171479,
+      "val_acc": 0.9750000238418579,
+      "seconds": 0.350301767000019
+    },
+    {
+      "epoch": 16,
+      "loss": 0.08101508922464784,
+      "val_acc": 0.9762499928474426,
+      "seconds": 0.3405870549999577
+    },
+    {
+      "epoch": 17,
+      "loss": 0.07732257095853967,
+      "val_acc": 0.9750000238418579,
+      "seconds": 0.33918521900000087
+    },
+    {
+      "epoch": 18,
+      "loss": 0.06563991453188252,
+      "val_acc": 0.9781249761581421,
+      "seconds": 0.3663941740000496
+    }
+  ]
+}

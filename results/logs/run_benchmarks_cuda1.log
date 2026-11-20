@@ -1,0 +1,277 @@
+downloading codex-s ...
+  codex-s seed 1 done in 4920s: {'entities': 2034, 'relations': 42, 'triples': 39272, 'noise': 2729, 'conflict_noise': 760, 'random_noise': 1969, 'functional_relations': 16, 'test_functional_keys': 131, 'test_conflict_keys': 39}
+    MRR Proposed scorer (R-GCN + bilinear)=0.338, TransE=0.327, DistMult=0.318, ComplEx=0.319, RotatE=0.345, R-GCN=0.339, CompGCN=0.333
+codex-s {
+ "Algorithm 1 (paraconsistent)": {
+  "accuracy": 0.931,
+  "f1": 0.9643
+ },
+ "Algorithm 2 (learning-assisted)": {
+  "accuracy": 0.9445,
+  "f1": 0.9676
+ },
+ "Algorithm 3 (multi-agent)": {
+  "accuracy": 0.9451,
+  "f1": 0.9682
+ },
+ "Majority vote": {
+  "accuracy": 0.931,
+  "f1": 0.9643
+ },
+ "Rule-based (frequency rules)": {
+  "accuracy": 0.9832,
+  "f1": 0.8732
+ },
+ "TransE": {
+  "accuracy": 0.9633,
+  "f1": 0.9585
+ },
+ "DistMult": {
+  "accuracy": 0.9658,
+  "f1": 0.9448
+ },
+ "ComplEx": {
+  "accuracy": 0.9699,
+  "f1": 0.9327
+ },
+ "RotatE": {
+  "accuracy": 0.9685,
+  "f1": 0.9467
+ },
+ "R-GCN": {
+  "accuracy": 0.9688,
+  "f1": 0.9371
+ },
+ "CompGCN": {
+  "accuracy": 0.9726,
+  "f1": 0.917
+ }
+}
+downloading kinship ...
+  kinship seed 0 done in 638s: {'entities': 104, 'relations': 25, 'triples': 11306, 'noise': 620, 'conflict_noise': 0, 'random_noise': 620, 'functional_relations': 0, 'test_functional_keys': 0, 'test_conflict_keys': 0}
+    MRR Proposed scorer (R-GCN + bilinear)=0.736, TransE=0.086, DistMult=0.495, ComplEx=0.754, RotatE=0.774, R-GCN=0.507, CompGCN=0.528
+  kinship seed 1 done in 636s: {'entities': 104, 'relations': 25, 'triples': 11306, 'noise': 620, 'conflict_noise': 0, 'random_noise': 620, 'functional_relations': 0, 'test_functional_keys': 0, 'test_conflict_keys': 0}
+    MRR Proposed scorer (R-GCN + bilinear)=0.752, TransE=0.092, DistMult=0.515, ComplEx=0.758, RotatE=0.763, R-GCN=0.520, CompGCN=0.514
+  kinship seed 2 done in 680s: {'entities': 104, 'relations': 25, 'triples': 11306, 'noise': 620, 'conflict_noise': 0, 'random_noise': 620, 'functional_relations': 0, 'test_functional_keys': 0, 'test_conflict_keys': 0}
+    MRR Proposed scorer (R-GCN + bilinear)=0.756, TransE=0.092, DistMult=0.509, ComplEx=0.739, RotatE=0.761, R-GCN=0.515, CompGCN=0.525
+kinship {
+ "Algorithm 1 (paraconsistent)": {
+  "accuracy": 0.9454,
+  "f1": 0.9719
+ },
+ "Algorithm 2 (learning-assisted)": {
+  "accuracy": 0.9721,
+  "f1": 0.9771
+ },
+ "Algorithm 3 (multi-agent)": {
+  "accuracy": 0.9601,
+  "f1": 0.9736
+ },
+ "Majority vote": {
+  "accuracy": 0.9454,
+  "f1": 0.9719
+ },
+ "Rule-based (frequency rules)": {
+  "accuracy": 0.9789,
+  "f1": 0.8012
+ },
+ "TransE": {
+  "accuracy": 0.9446,
+  "f1": 0.9534
+ },
+ "DistMult": {
+  "accuracy": 0.9879,
+  "f1": 0.9893
+ },
+ "ComplEx": {
+  "accuracy": 0.9857,
+  "f1": 0.9856
+ },
+ "RotatE": {
+  "accuracy": 0.9873,
+  "f1": 0.9895
+ },
+ "R-GCN": {
+  "accuracy": 0.9857,
+  "f1": 0.9864
+ },
+ "CompGCN": {
+  "accuracy": 0.9822,
+  "f1": 0.9866
+ }
+}
+downloading umls ...
+  umls seed 0 done in 587s: {'entities': 135, 'relations': 46, 'triples': 6824, 'noise': 295, 'conflict_noise': 0, 'random_noise': 295, 'functional_relations': 1, 'test_functional_keys': 4, 'test_conflict_keys': 0}
+    MRR Proposed scorer (R-GCN + bilinear)=0.881, TransE=0.651, DistMult=0.714, ComplEx=0.874, RotatE=0.843, R-GCN=0.724, CompGCN=0.709
+  umls seed 1 done in 619s: {'entities': 135, 'relations': 46, 'triples': 6822, 'noise': 293, 'conflict_noise': 0, 'random_noise': 293, 'functional_relations': 1, 'test_functional_keys': 4, 'test_conflict_keys': 0}
+    MRR Proposed scorer (R-GCN + bilinear)=0.865, TransE=0.657, DistMult=0.725, ComplEx=0.886, RotatE=0.830, R-GCN=0.699, CompGCN=0.715
+  umls seed 2 done in 609s: {'entities': 135, 'relations': 46, 'triples': 6821, 'noise': 292, 'conflict_noise': 0, 'random_noise': 292, 'functional_relations': 1, 'test_functional_keys': 4, 'test_conflict_keys': 0}
+    MRR Proposed scorer (R-GCN + bilinear)=0.848, TransE=0.650, DistMult=0.721, ComplEx=0.883, RotatE=0.827, R-GCN=0.703, CompGCN=0.721
+umls {
+ "Algorithm 1 (paraconsistent)": {
+  "accuracy": 0.9575,
+  "f1": 0.9783
+ },
+ "Algorithm 2 (learning-assisted)": {
+  "accuracy": 0.9702,
+  "f1": 0.9831
+ },
+ "Algorithm 3 (multi-agent)": {
+  "accuracy": 0.9575,
+  "f1": 0.9783
+ },
+ "Majority vote": {
+  "accuracy": 0.9574,
+  "f1": 0.977
+ },
+ "Rule-based (frequency rules)": {
+  "accuracy": 0.9945,
+  "f1": 0.7038
+ },
+ "TransE": {
+  "accuracy": 0.9736,
+  "f1": 0.9792
+ },
+ "DistMult": {
+  "accuracy": 0.9772,
+  "f1": 0.983
+ },
+ "ComplEx": {
+  "accuracy": 0.9805,
+  "f1": 0.9824
+ },
+ "RotatE": {
+  "accuracy": 0.9767,
+  "f1": 0.9845
+ },
+ "R-GCN": {
+  "accuracy": 0.9809,
+  "f1": 0.9787
+ },
+ "CompGCN": {
+  "accuracy": 0.9729,
+  "f1": 0.984
+ }
+}
+downloading nations ...
+  nations seed 0 done in 406s: {'entities': 14, 'relations': 55, 'triples': 2113, 'noise': 121, 'conflict_noise': 7, 'random_noise': 114, 'functional_relations': 4, 'test_functional_keys': 1, 'test_conflict_keys': 0}
+    MRR Proposed scorer (R-GCN + bilinear)=0.547, TransE=0.412, DistMult=0.669, ComplEx=0.637, RotatE=0.500, R-GCN=0.619, CompGCN=0.648
+  nations seed 1 done in 424s: {'entities': 14, 'relations': 55, 'triples': 2113, 'noise': 121, 'conflict_noise': 7, 'random_noise': 114, 'functional_relations': 4, 'test_functional_keys': 1, 'test_conflict_keys': 0}
+    MRR Proposed scorer (R-GCN + bilinear)=0.552, TransE=0.412, DistMult=0.688, ComplEx=0.573, RotatE=0.631, R-GCN=0.616, CompGCN=0.656
+  nations seed 2 done in 467s: {'entities': 14, 'relations': 55, 'triples': 2115, 'noise': 123, 'conflict_noise': 9, 'random_noise': 114, 'functional_relations': 4, 'test_functional_keys': 1, 'test_conflict_keys': 1}
+    MRR Proposed scorer (R-GCN + bilinear)=0.447, TransE=0.418, DistMult=0.702, ComplEx=0.590, RotatE=0.620, R-GCN=0.629, CompGCN=0.659
+nations {
+ "Algorithm 1 (paraconsistent)": {
+  "accuracy": 0.9422,
+  "f1": 0.9702
+ },
+ "Algorithm 2 (learning-assisted)": {
+  "accuracy": 0.9422,
+  "f1": 0.9702
+ },
+ "Algorithm 3 (multi-agent)": {
+  "accuracy": 0.9437,
+  "f1": 0.971
+ },
+ "Majority vote": {
+  "accuracy": 0.9422,
+  "f1": 0.9702
+ },
+ "Rule-based (frequency rules)": {
+  "accuracy": 0.979,
+  "f1": 0.814
+ },
+ "TransE": {
+  "accuracy": 0.9422,
+  "f1": 0.9702
+ },
+ "DistMult": {
+  "accuracy": 0.9465,
+  "f1": 0.9709
+ },
+ "ComplEx": {
+  "accuracy": 0.9491,
+  "f1": 0.9674
+ },
+ "RotatE": {
+  "accuracy": 0.9435,
+  "f1": 0.9693
+ },
+ "R-GCN": {
+  "accuracy": 0.9776,
+  "f1": 0.7867
+ },
+ "CompGCN": {
+  "accuracy": 0.9608,
+  "f1": 0.9443
+ }
+}
+  q=0.0 seed 0 [cuda:1] 50s  agent acc=[0.969, 0.979, 0.976] source precision=[0.955, 0.949, 0.957]  Algorithm 1 (paraconsistent): acc=0.9823 cr=0.684  Alg. 2 (one scorer on all da: acc=0.9990 cr=0.982  Alg. 3, equal weights: acc=0.9990 cr=0.982  Alg. 3, π = scorer val. accu: acc=0.9990 cr=0.982  Alg. 3, π = log-odds of scor: acc=0.9990 cr=0.982  Alg. 3, π = log-odds of sour: acc=0.9990 cr=0.982
+  q=0.0 seed 1 [cuda:1] 43s  agent acc=[0.977, 0.971, 0.974] source precision=[0.946, 0.94, 0.95]  Algorithm 1 (paraconsistent): acc=0.9756 cr=0.636  Alg. 2 (one scorer on all da: acc=0.9980 cr=0.970  Alg. 3, equal weights: acc=0.9980 cr=0.970  Alg. 3, π = scorer val. accu: acc=0.9980 cr=0.970  Alg. 3, π = log-odds of scor: acc=0.9980 cr=0.970  Alg. 3, π = log-odds of sour: acc=0.9980 cr=0.970
+  q=0.0 seed 2 [cuda:1] 44s  agent acc=[0.975, 0.973, 0.974] source precision=[0.92, 0.955, 0.933]  Algorithm 1 (paraconsistent): acc=0.9794 cr=0.609  Alg. 2 (one scorer on all da: acc=0.9980 cr=0.957  Alg. 3, equal weights: acc=0.9990 cr=0.978  Alg. 3, π = scorer val. accu: acc=0.9990 cr=0.978  Alg. 3, π = log-odds of scor: acc=0.9990 cr=0.978  Alg. 3, π = log-odds of sour: acc=0.9990 cr=0.978
+  q=0.5 seed 0 [cuda:1] 50s  agent acc=[0.976, 0.978, 0.977] source precision=[0.771, 0.949, 0.957]  Algorithm 1 (paraconsistent): acc=0.8803 cr=0.218  Alg. 2 (one scorer on all da: acc=0.9970 cr=0.982  Alg. 3, equal weights: acc=0.9960 cr=0.976  Alg. 3, π = scorer val. accu: acc=0.9960 cr=0.976  Alg. 3, π = log-odds of scor: acc=0.9960 cr=0.976  Alg. 3, π = log-odds of sour: acc=0.9960 cr=0.976
+  q=0.5 seed 1 [cuda:1] 52s  agent acc=[0.977, 0.974, 0.978] source precision=[0.752, 0.94, 0.95]  Algorithm 1 (paraconsistent): acc=0.8726 cr=0.230  Alg. 2 (one scorer on all da: acc=0.9950 cr=0.972  Alg. 3, equal weights: acc=0.9950 cr=0.972  Alg. 3, π = scorer val. accu: acc=0.9950 cr=0.972  Alg. 3, π = log-odds of scor: acc=0.9950 cr=0.972  Alg. 3, π = log-odds of sour: acc=0.9960 cr=0.978
+  q=0.5 seed 2 [cuda:1] 47s  agent acc=[0.975, 0.976, 0.977] source precision=[0.753, 0.955, 0.933]  Algorithm 1 (paraconsistent): acc=0.8818 cr=0.178  Alg. 2 (one scorer on all da: acc=0.9930 cr=0.954  Alg. 3, equal weights: acc=0.9960 cr=0.974  Alg. 3, π = scorer val. accu: acc=0.9960 cr=0.974  Alg. 3, π = log-odds of scor: acc=0.9960 cr=0.974  Alg. 3, π = log-odds of sour: acc=0.9980 cr=0.987
+# Additional analyses (SolarKG-VN)
+
+## A. Scorer choice under noise and label scarcity (seeds [0, 1, 2])
+
+### Accuracy
+
+| Method | noise=300 | noise=800 | noise=1600 | train_fraction=0.5 | train_fraction=0.25 |
+|---|---|---|---|---|---|
+| Algorithm 1 (paraconsistent) | 0.9791 ± 0.0027 | 0.9464 ± 0.0062 | 0.8960 ± 0.0129 | 0.9791 ± 0.0027 | 0.9791 ± 0.0027 |
+| Alg. 2 + ID embedding (no features, no GNN) | 0.9889 ± 0.0096 | 0.9649 ± 0.0179 | 0.9296 ± 0.0047 | 0.9830 ± 0.0063 | 0.9813 ± 0.0056 |
+| Alg. 2 + feature MLP (no GNN) | 0.9993 ± 0.0005 | 0.9950 ± 0.0042 | 0.9885 ± 0.0040 | 0.9993 ± 0.0005 | 0.9977 ± 0.0019 |
+| Alg. 2 + R-GCN (proposed) | 0.9983 ± 0.0005 | 0.9957 ± 0.0034 | 0.9963 ± 0.0012 | 0.9990 ± 0.0000 | 0.9970 ± 0.0029 |
+| R-GCN only (no paraconsistent layer) | 0.9916 ± 0.0028 | 0.9895 ± 0.0026 | 0.9898 ± 0.0015 | 0.9810 ± 0.0049 | 0.9769 ± 0.0103 |
+| Algorithm 3 (multi-agent) | 0.9990 ± 0.0000 | 0.9960 ± 0.0029 | 0.9960 ± 0.0016 | 0.9990 ± 0.0008 | 0.9970 ± 0.0021 |
+
+### Conflict resolution acc.
+
+| Method | noise=300 | noise=800 | noise=1600 | train_fraction=0.5 | train_fraction=0.25 |
+|---|---|---|---|---|---|
+| Algorithm 1 (paraconsistent) | 0.6431 ± 0.0312 | 0.6398 ± 0.0521 | 0.6326 ± 0.0291 | 0.6431 ± 0.0312 | 0.6431 ± 0.0312 |
+| Alg. 2 + ID embedding (no features, no GNN) | 0.8164 ± 0.1360 | 0.7635 ± 0.1121 | 0.7565 ± 0.0275 | 0.7083 ± 0.0707 | 0.6840 ± 0.0877 |
+| Alg. 2 + feature MLP (no GNN) | 0.9891 ± 0.0078 | 0.9640 ± 0.0322 | 0.9638 ± 0.0115 | 0.9891 ± 0.0078 | 0.9674 ± 0.0231 |
+| Alg. 2 + R-GCN (proposed) | 0.9696 ± 0.0106 | 0.9714 ± 0.0224 | 0.9865 ± 0.0049 | 0.9819 ± 0.0027 | 0.9537 ± 0.0458 |
+| R-GCN only (no paraconsistent layer) | 0.8491 ± 0.0223 | 0.9186 ± 0.0263 | 0.9487 ± 0.0024 | 0.6632 ± 0.0545 | 0.6092 ± 0.1256 |
+| Algorithm 3 (multi-agent) | 0.9819 ± 0.0027 | 0.9739 ± 0.0190 | 0.9878 ± 0.0034 | 0.9797 ± 0.0179 | 0.9551 ± 0.0302 |
+
+| Setting | triples | train triples | conflict keys | test heads unseen in train |
+|---|---|---|---|---|
+| noise=300 | 5300 | 3396 | 112 | 92.1% |
+| noise=800 | 5800 | 3713 | 287 | 92.1% |
+| noise=1600 | 6600 | 4227 | 547 | 92.1% |
+| train_fraction=0.5 | 3602 | 1698 | 59 | 96.1% |
+| train_fraction=0.25 | 2753 | 849 | 40 | 98.3% |
+
+## B. Heterogeneous agents (seeds [0, 1, 2])
+
+q = fraction of the unreliable agent's hasSolarPotential triples that receive an in-range corrupted copy (seen only by that agent).
+
+### Accuracy
+
+| Method | q=0.0 | q=0.5 |
+|---|---|---|
+| Algorithm 1 (paraconsistent) | 0.9791 ± 0.0027 | 0.8782 ± 0.0040 |
+| Alg. 2 (one scorer on all data) | 0.9983 ± 0.0005 | 0.9950 ± 0.0016 |
+| Alg. 3, equal weights | 0.9987 ± 0.0005 | 0.9957 ± 0.0005 |
+| Alg. 3, π = scorer val. accuracy (paper) | 0.9987 ± 0.0005 | 0.9957 ± 0.0005 |
+| Alg. 3, π = log-odds of scorer val. accuracy | 0.9987 ± 0.0005 | 0.9957 ± 0.0005 |
+| Alg. 3, π = log-odds of source precision on val. | 0.9987 ± 0.0005 | 0.9967 ± 0.0009 |
+
+### Conflict resolution acc.
+
+| Method | q=0.0 | q=0.5 |
+|---|---|---|
+| Algorithm 1 (paraconsistent) | 0.6431 ± 0.0312 | 0.2085 ± 0.0225 |
+| Alg. 2 (one scorer on all data) | 0.9696 ± 0.0106 | 0.9694 ± 0.0117 |
+| Alg. 3, equal weights | 0.9768 ± 0.0053 | 0.9740 ± 0.0019 |
+| Alg. 3, π = scorer val. accuracy (paper) | 0.9768 ± 0.0053 | 0.9740 ± 0.0019 |
+| Alg. 3, π = log-odds of scorer val. accuracy | 0.9768 ± 0.0053 | 0.9740 ± 0.0019 |
+| Alg. 3, π = log-odds of source precision on val. | 0.9768 ± 0.0053 | 0.9803 ± 0.0047 |
+
+- q=0.0: per-agent scorer validation accuracy [0.9735, 0.9746, 0.9748], source precision on validation [0.9404, 0.9481, 0.947] (mean over seeds)
+- q=0.5: per-agent scorer validation accuracy [0.976, 0.976, 0.9775], source precision on validation [0.7588, 0.9481, 0.947] (mean over seeds)
+

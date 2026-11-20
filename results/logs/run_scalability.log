@@ -1,0 +1,18 @@
+     5300 triples: fragments 0.010s, epoch 0.4s, alg2 0.05s, alg3 0.03s, rss 1292MB
+    10600 triples: fragments 0.021s, epoch 0.9s, alg2 0.03s, alg3 0.21s, rss 1305MB
+    21200 triples: fragments 0.040s, epoch 1.9s, alg2 0.07s, alg3 0.11s, rss 1327MB
+    41882 triples: fragments 0.211s, epoch 4.0s, alg2 0.16s, alg3 0.24s, rss 1364MB
+    98060 triples: fragments 0.321s, epoch 10.4s, alg2 0.56s, alg3 0.76s, rss 1439MB
+   181440 triples: fragments 0.656s, epoch 21.6s, alg2 0.72s, alg3 1.56s, rss 1563MB
+   314398 triples: fragments 0.981s, epoch 42.7s, alg2 1.59s, alg3 2.64s, rss 1757MB
+  m=1: train 1.8s, inference 0.06s
+  m=2: train 2.5s, inference 0.09s
+  m=4: train 3.6s, inference 0.16s
+  m=8: train 6.1s, inference 0.31s
+  m=16: train 11.0s, inference 0.56s
+{
+  "fragments_s": 1.1642636468196141,
+  "train_s_per_epoch": 1.1244555098913274,
+  "alg2_inference_s": 0.9672043760573112,
+  "alg3_inference_s": 0.9873751536010562
+}

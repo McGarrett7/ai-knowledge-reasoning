@@ -1,0 +1,80 @@
+saved /kaggle/working/ai-knowledge-reasoning/results/llm_baselines_deepseek_deepseek-ai-DeepSeek-V4.1-Flash-1017.json
+{
+  "backend": {
+    "backend": "deepseek",
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "base_url": "https://inference.14092005.xyz/openai/v1",
+    "temperature": 0,
+    "json_mode": true,
+    "extra_body": {
+      "enable_thinking": false
+    }
+  },
+  "queries": 1000,
+  "zero-shot": {
+    "LLM only": {
+      "queries": 1000,
+      "answered": 800,
+      "correctness": 0.9975,
+      "accuracy": 0.9875311720698254,
+      "recall": 0.792,
+      "f1": 0.8790233074361821,
+      "support_ratio": 1.0,
+      "conflicts": 57,
+      "conflict_mitigation": 0.9649122807017544,
+      "conflict_resolution_acc": 0.7192982456140351
+    },
+    "LLM + paraconsistent (Alg. 2)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.99,
+      "recall": 0.99,
+      "f1": 0.99,
+      "support_ratio": 1.0,
+      "conflicts": 57,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.8245614035087719
+    },
+    "usage": {
+      "calls": 50,
+      "input_tokens": 38152,
+      "output_tokens": 19857,
+      "latency_s": 245.26935483099896,
+      "failed_batches": 0
+    }
+  },
+  "kg-rag": {
+    "LLM only": {
+      "queries": 1000,
+      "answered": 966,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 0.966,
+      "f1": 0.982706002034588,
+      "support_ratio": 1.0,
+      "conflicts": 57,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.9649122807017544
+    },
+    "LLM + paraconsistent (Alg. 2)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.999,
+      "recall": 0.999,
+      "f1": 0.999,
+      "support_ratio": 1.0,
+      "conflicts": 57,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.9824561403508771
+    },
+    "usage": {
+      "calls": 50,
+      "input_tokens": 237891,
+      "output_tokens": 19839,
+      "latency_s": 356.2919141550001,
+      "failed_batches": 0
+    }
+  }
+}

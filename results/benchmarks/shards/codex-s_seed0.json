@@ -1,0 +1,235 @@
+{
+  "reasoning": {
+    "Algorithm 1 (paraconsistent)": {
+      "queries": 1460,
+      "answered": 1460,
+      "correctness": 0.9753424657534246,
+      "accuracy": 0.9317023445463812,
+      "recall": 1.0,
+      "f1": 0.9646437994722955,
+      "support_ratio": 1.001019367991845,
+      "conflicts": 36,
+      "conflict_mitigation": 0.0,
+      "conflict_resolution_acc": 0.0
+    },
+    "Algorithm 2 (learning-assisted)": {
+      "queries": 1460,
+      "answered": 1452,
+      "correctness": 1.0,
+      "accuracy": 0.9452554744525548,
+      "recall": 0.9917943107221007,
+      "f1": 0.9679658302189001,
+      "support_ratio": 1.1047966631908237,
+      "conflicts": 36,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.7222222222222222
+    },
+    "Algorithm 3 (multi-agent)": {
+      "queries": 1460,
+      "answered": 1455,
+      "correctness": 1.0,
+      "accuracy": 0.9453409682457053,
+      "recall": 0.9934354485776805,
+      "f1": 0.9687916777807415,
+      "support_ratio": 1.7813638729828214,
+      "conflicts": 36,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.7777777777777778
+    },
+    "Majority vote": {
+      "queries": 1460,
+      "answered": 1460,
+      "correctness": 0.9753424657534246,
+      "accuracy": 0.9317023445463812,
+      "recall": 1.0,
+      "f1": 0.9646437994722955,
+      "support_ratio": 1.0,
+      "conflicts": 36,
+      "conflict_mitigation": 0.0,
+      "conflict_resolution_acc": 0.0
+    },
+    "Rule-based (frequency rules)": {
+      "queries": 1460,
+      "answered": 1460,
+      "correctness": 1.0,
+      "accuracy": 0.9856164383561644,
+      "recall": 0.787199124726477,
+      "f1": 0.8753041362530413,
+      "support_ratio": 1.0,
+      "conflicts": 36,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.6944444444444444
+    },
+    "TransE": {
+      "queries": 1460,
+      "answered": 1383,
+      "correctness": 0.9898770788141721,
+      "accuracy": 0.9619415333701048,
+      "recall": 0.9540481400437637,
+      "f1": 0.9579785773139248,
+      "support_ratio": 1.0,
+      "conflicts": 36,
+      "conflict_mitigation": 0.6111111111111112,
+      "conflict_resolution_acc": 0.4444444444444444
+    },
+    "DistMult": {
+      "queries": 1460,
+      "answered": 1359,
+      "correctness": 0.9874908020603385,
+      "accuracy": 0.9595732734418866,
+      "recall": 0.9349015317286652,
+      "f1": 0.9470767525630368,
+      "support_ratio": 1.0,
+      "conflicts": 36,
+      "conflict_mitigation": 0.5277777777777778,
+      "conflict_resolution_acc": 0.3333333333333333
+    },
+    "ComplEx": {
+      "queries": 1460,
+      "answered": 1315,
+      "correctness": 0.9923954372623575,
+      "accuracy": 0.967930029154519,
+      "recall": 0.9080962800875274,
+      "f1": 0.9370589895568727,
+      "support_ratio": 1.0,
+      "conflicts": 36,
+      "conflict_mitigation": 0.7222222222222222,
+      "conflict_resolution_acc": 0.3888888888888889
+    },
+    "RotatE": {
+      "queries": 1460,
+      "answered": 1344,
+      "correctness": 0.9880952380952381,
+      "accuracy": 0.9652817302219693,
+      "recall": 0.9277899343544858,
+      "f1": 0.9461645746164574,
+      "support_ratio": 1.0,
+      "conflicts": 36,
+      "conflict_mitigation": 0.5555555555555556,
+      "conflict_resolution_acc": 0.4444444444444444
+    },
+    "R-GCN": {
+      "queries": 1460,
+      "answered": 1319,
+      "correctness": 0.9863532979529946,
+      "accuracy": 0.9659353348729792,
+      "recall": 0.9152078774617067,
+      "f1": 0.9398876404494382,
+      "support_ratio": 1.0,
+      "conflicts": 36,
+      "conflict_mitigation": 0.5,
+      "conflict_resolution_acc": 0.3888888888888889
+    },
+    "CompGCN": {
+      "queries": 1460,
+      "answered": 1313,
+      "correctness": 0.9855293221629855,
+      "accuracy": 0.9651972157772621,
+      "recall": 0.9102844638949672,
+      "f1": 0.9369369369369369,
+      "support_ratio": 1.0,
+      "conflicts": 36,
+      "conflict_mitigation": 0.4722222222222222,
+      "conflict_resolution_acc": 0.2777777777777778
+    }
+  },
+  "link_prediction": {
+    "Proposed scorer (R-GCN + bilinear)": {
+      "MRR": 0.3334768834422716,
+      "Hits@1": 0.22292122538293216,
+      "Hits@3": 0.37718818380743985,
+      "Hits@10": 0.5593544857768052
+    },
+    "TransE": {
+      "MRR": 0.3313356714555493,
+      "Hits@1": 0.19967177242888404,
+      "Hits@3": 0.3935995623632385,
+      "Hits@10": 0.5839715536105032
+    },
+    "DistMult": {
+      "MRR": 0.32130811951007515,
+      "Hits@1": 0.21580962800875272,
+      "Hits@3": 0.3583150984682713,
+      "Hits@10": 0.537199124726477
+    },
+    "ComplEx": {
+      "MRR": 0.32734005855299725,
+      "Hits@1": 0.22210065645514224,
+      "Hits@3": 0.36597374179431075,
+      "Hits@10": 0.537746170678337
+    },
+    "RotatE": {
+      "MRR": 0.34028836004270424,
+      "Hits@1": 0.21799781181619257,
+      "Hits@3": 0.3993435448577681,
+      "Hits@10": 0.5724835886214442
+    },
+    "R-GCN": {
+      "MRR": 0.33128533119989473,
+      "Hits@1": 0.21580962800875272,
+      "Hits@3": 0.3812910284463895,
+      "Hits@10": 0.5568927789934355
+    },
+    "CompGCN": {
+      "MRR": 0.34000079595453725,
+      "Hits@1": 0.23440919037199126,
+      "Hits@3": 0.3788293216630197,
+      "Hits@10": 0.5560722100656456
+    }
+  },
+  "stats": {
+    "entities": 2034,
+    "relations": 42,
+    "triples": 39257,
+    "noise": 2714,
+    "conflict_noise": 745,
+    "random_noise": 1969,
+    "functional_relations": 16,
+    "test_functional_keys": 131,
+    "test_conflict_keys": 36
+  },
+  "seconds": 4697.863537018,
+  "seed": 0,
+  "protocol": {
+    "noise_rate": 0.058,
+    "tau_func": 0.9,
+    "conflict_rate": 0.3,
+    "functional_relations": [
+      "P102",
+      "P1050",
+      "P119",
+      "P135",
+      "P140",
+      "P159",
+      "P172",
+      "P19",
+      "P20",
+      "P2348",
+      "P26",
+      "P30",
+      "P35",
+      "P509",
+      "P740",
+      "P749"
+    ],
+    "train": {
+      "dim": 128,
+      "lr": 0.003,
+      "epochs": 300,
+      "batch_size": 128,
+      "negatives": 5,
+      "patience": 50,
+      "gnn_layers": 2,
+      "num_bases": 30,
+      "fourier_freqs": 8,
+      "fanout": null,
+      "objective": "kvsall",
+      "select_metric": "mrr",
+      "eval_every": 5,
+      "label_smoothing": 0.0,
+      "emb_dropout": 0.0,
+      "weight_decay": 0.0,
+      "device": "cuda:0"
+    }
+  }
+}

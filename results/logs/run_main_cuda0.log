@@ -1,0 +1,3 @@
+seed 0 [cuda:0]: 125s  Algorithm 1 acc=0.9823  Algorithm 2 acc=0.9990  Algorithm 3 acc=0.9980
+seed 2 [cuda:0]: 145s  Algorithm 1 acc=0.9794  Algorithm 2 acc=0.9980  Algorithm 3 acc=0.9990
+seed 4 [cuda:0]: 121s  Algorithm 1 acc=0.9766  Algorithm 2 acc=0.9990  Algorithm 3 acc=0.9990

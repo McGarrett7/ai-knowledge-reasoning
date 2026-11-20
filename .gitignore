@@ -30,6 +30,7 @@ htmlcov/
 
 # Logs
 *.log
+!results/logs/*.log
 
 # Docs
 docs/
@@ -41,8 +42,4 @@ docs/
 # Downloaded benchmarks
 dataset/benchmarks/
 
-# Smoke-test / generated results (regenerate with main.py)
-results/**
-!results/**/
-!results/**/.gitkeep
 

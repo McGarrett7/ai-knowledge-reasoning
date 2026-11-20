@@ -1,0 +1,394 @@
+{
+  "seed": 4,
+  "quick": false,
+  "device": "cuda:0",
+  "stats": {
+    "clean_triples": 5000,
+    "locations": 4683,
+    "relations": [
+      "hasSolarPotential",
+      "produces"
+    ],
+    "clean_conflicts": 0,
+    "split": {
+      "test": 1000,
+      "train": 3200,
+      "val": 800
+    },
+    "noisy_triples": 5300,
+    "injected": 300,
+    "noisy_conflicts": 291,
+    "noisy_conflict_rate": 0.0582,
+    "injected_rejected_by_ontology": 188,
+    "ontology_axioms": [
+      "EnergySource(solar_energy)",
+      "EnergySource \u2291 Thing",
+      "Location \u2291 Thing",
+      "PVValue \u2291 Thing",
+      "Func(hasSolarPotential)  [conf=1.000]",
+      "Func(produces)  [conf=1.000]",
+      "dom(hasSolarPotential) = Location",
+      "dom(produces) = Location",
+      "dom(nearTo) = Location",
+      "ran(hasSolarPotential) = [0.0, 255.0]",
+      "ran(produces) = EnergySource"
+    ]
+  },
+  "noisy": {
+    "Algorithm 1 (paraconsistent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 0.976,
+      "accuracy": 0.9765625,
+      "recall": 1.0,
+      "f1": 0.9881422924901185,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 0.6190476190476191,
+      "conflict_resolution_acc": 0.6190476190476191
+    },
+    "Algorithm 2 (learning-assisted)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.999,
+      "recall": 0.999,
+      "f1": 0.999,
+      "support_ratio": 1.899,
+      "conflicts": 63,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.9841269841269841
+    },
+    "Algorithm 3 (multi-agent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.999,
+      "recall": 0.999,
+      "f1": 0.999,
+      "support_ratio": 4.31,
+      "conflicts": 63,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.9841269841269841
+    },
+    "Ablation: Alg.1 without range axioms": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 0.937,
+      "accuracy": 0.9389671361502347,
+      "recall": 1.0,
+      "f1": 0.9685230024213075,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 0.0,
+      "conflict_resolution_acc": 0.0
+    },
+    "Ablation: GNN scorer, no paraconsistent layer": {
+      "queries": 1000,
+      "answered": 987,
+      "correctness": 0.9888551165146909,
+      "accuracy": 0.987987987987988,
+      "recall": 0.987,
+      "f1": 0.9874937468734368,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 0.8253968253968254,
+      "conflict_resolution_acc": 0.8253968253968254
+    },
+    "Ablation: Alg.2 with shallow scorer (no GNN)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 1.896,
+      "conflicts": 63,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Ablation: Alg.3 with equal agent weights": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.999,
+      "recall": 0.999,
+      "f1": 0.999,
+      "support_ratio": 4.31,
+      "conflicts": 63,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.9841269841269841
+    },
+    "Majority vote": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 0.937,
+      "accuracy": 0.9389671361502347,
+      "recall": 1.0,
+      "f1": 0.9685230024213075,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 0.0,
+      "conflict_resolution_acc": 0.0
+    },
+    "Rule-based (spatial kNN rules)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.966,
+      "recall": 0.966,
+      "f1": 0.966,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.4603174603174603
+    },
+    "TransE": {
+      "queries": 1000,
+      "answered": 984,
+      "correctness": 0.9939024390243902,
+      "accuracy": 0.9939393939393939,
+      "recall": 0.984,
+      "f1": 0.9889447236180904,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 0.9047619047619048,
+      "conflict_resolution_acc": 0.9047619047619048
+    },
+    "DistMult": {
+      "queries": 1000,
+      "answered": 993,
+      "correctness": 0.9879154078549849,
+      "accuracy": 0.9880597014925373,
+      "recall": 0.993,
+      "f1": 0.9905236907730673,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 0.8095238095238095,
+      "conflict_resolution_acc": 0.8095238095238095
+    },
+    "ComplEx": {
+      "queries": 1000,
+      "answered": 995,
+      "correctness": 0.9829145728643216,
+      "accuracy": 0.983201581027668,
+      "recall": 0.995,
+      "f1": 0.9890656063618289,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 0.7301587301587302,
+      "conflict_resolution_acc": 0.7301587301587301
+    },
+    "RotatE": {
+      "queries": 1000,
+      "answered": 993,
+      "correctness": 0.9848942598187311,
+      "accuracy": 0.9851190476190477,
+      "recall": 0.993,
+      "f1": 0.9890438247011952,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 0.7619047619047619,
+      "conflict_resolution_acc": 0.7619047619047619
+    },
+    "R-GCN": {
+      "queries": 1000,
+      "answered": 979,
+      "correctness": 0.9938712972420838,
+      "accuracy": 0.9929006085192698,
+      "recall": 0.979,
+      "f1": 0.985901309164149,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 0.9047619047619048,
+      "conflict_resolution_acc": 0.9047619047619048
+    },
+    "CompGCN": {
+      "queries": 1000,
+      "answered": 984,
+      "correctness": 0.9939024390243902,
+      "accuracy": 0.9939393939393939,
+      "recall": 0.984,
+      "f1": 0.9889447236180904,
+      "support_ratio": 1.0,
+      "conflicts": 63,
+      "conflict_mitigation": 0.9047619047619048,
+      "conflict_resolution_acc": 0.9047619047619048
+    }
+  },
+  "clean": {
+    "Algorithm 1 (paraconsistent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 1.0,
+      "conflicts": 0,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Algorithm 2 (learning-assisted)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 1.898,
+      "conflicts": 0,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Algorithm 3 (multi-agent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 4.316,
+      "conflicts": 0,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    }
+  },
+  "params": {
+    "alg2": {
+      "tau": 0.0,
+      "delta": 0.0
+    },
+    "alg3": {
+      "tau": 0.0,
+      "delta": 0.0
+    }
+  },
+  "kb": {
+    "triples": 5300,
+    "conflict_keys": 110,
+    "rejected_by_ontology": 188,
+    "log10_fragments": 33.11329952303793
+  },
+  "timing": {
+    "Algorithm 1": 0.004742317000022922,
+    "Algorithm 2": 8.950159476999943,
+    "Algorithm 3": 14.718718749000004,
+    "TransE": 3.7123618680000163,
+    "DistMult": 2.0903171950000115,
+    "ComplEx": 3.617432120999979,
+    "RotatE": 6.695229507000022,
+    "R-GCN": 8.138178237000034,
+    "CompGCN": 39.60566574699999
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 0.5713084881827676,
+      "val_acc": 0.9556249976158142,
+      "seconds": 0.7943631990000313
+    },
+    {
+      "epoch": 2,
+      "loss": 0.26886963019004234,
+      "val_acc": 0.9706249833106995,
+      "seconds": 0.327950603999966
+    },
+    {
+      "epoch": 3,
+      "loss": 0.19211680477363824,
+      "val_acc": 0.9768750071525574,
+      "seconds": 0.32706349500006127
+    },
+    {
+      "epoch": 4,
+      "loss": 0.16566982265760208,
+      "val_acc": 0.9724999666213989,
+      "seconds": 0.32778171600000405
+    },
+    {
+      "epoch": 5,
+      "loss": 0.15988480292657423,
+      "val_acc": 0.9762499928474426,
+      "seconds": 0.3287595729999566
+    },
+    {
+      "epoch": 6,
+      "loss": 0.13586230016142659,
+      "val_acc": 0.9774999618530273,
+      "seconds": 0.33067163500004426
+    },
+    {
+      "epoch": 7,
+      "loss": 0.12514259939539363,
+      "val_acc": 0.9781249761581421,
+      "seconds": 0.33068541399995866
+    },
+    {
+      "epoch": 8,
+      "loss": 0.10401275069755915,
+      "val_acc": 0.9800000190734863,
+      "seconds": 0.3293040859999792
+    },
+    {
+      "epoch": 9,
+      "loss": 0.10350667843099176,
+      "val_acc": 0.9743750095367432,
+      "seconds": 0.3341032189999851
+    },
+    {
+      "epoch": 10,
+      "loss": 0.09756885636487655,
+      "val_acc": 0.9768749475479126,
+      "seconds": 0.33418034400006036
+    },
+    {
+      "epoch": 11,
+      "loss": 0.09725606088807597,
+      "val_acc": 0.9768749475479126,
+      "seconds": 0.3296146170000611
+    },
+    {
+      "epoch": 12,
+      "loss": 0.08140201938928232,
+      "val_acc": 0.9750000238418579,
+      "seconds": 0.3291703329999791
+    },
+    {
+      "epoch": 13,
+      "loss": 0.08112475085540637,
+      "val_acc": 0.9762499928474426,
+      "seconds": 0.32989996099991004
+    },
+    {
+      "epoch": 14,
+      "loss": 0.07192436523691437,
+      "val_acc": 0.9762499928474426,
+      "seconds": 0.328726104999987
+    },
+    {
+      "epoch": 15,
+      "loss": 0.07265384217514795,
+      "val_acc": 0.9737499952316284,
+      "seconds": 0.33175122700004067
+    },
+    {
+      "epoch": 16,
+      "loss": 0.06961407551663162,
+      "val_acc": 0.9756249785423279,
+      "seconds": 0.32903301299995746
+    },
+    {
+      "epoch": 17,
+      "loss": 0.0642288219117554,
+      "val_acc": 0.9743750095367432,
+      "seconds": 0.330806902000063
+    },
+    {
+      "epoch": 18,
+      "loss": 0.06586624078849364,
+      "val_acc": 0.9750000238418579,
+      "seconds": 0.331255877999979
+    }
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "reasoning": {
+    "Algorithm 1 (paraconsistent)": {
+      "queries": 1460,
+      "answered": 1460,
+      "correctness": 0.9732876712328767,
+      "accuracy": 0.9302798982188295,
+      "recall": 1.0,
+      "f1": 0.9638808331136303,
+      "support_ratio": 1.0005089058524173,
+      "conflicts": 39,
+      "conflict_mitigation": 0.0,
+      "conflict_resolution_acc": 0.0
+    },
+    "Algorithm 2 (learning-assisted)": {
+      "queries": 1460,
+      "answered": 1455,
+      "correctness": 1.0,
+      "accuracy": 0.943779281624154,
+      "recall": 0.9917943107221007,
+      "f1": 0.9671912510002667,
+      "support_ratio": 1.095262883914628,
+      "conflicts": 39,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.7435897435897436
+    },
+    "Algorithm 3 (multi-agent)": {
+      "queries": 1460,
+      "answered": 1453,
+      "correctness": 1.0,
+      "accuracy": 0.9447628973423658,
+      "recall": 0.9917943107221007,
+      "f1": 0.9677074993327995,
+      "support_ratio": 1.7363210005211047,
+      "conflicts": 39,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.7692307692307693
+    },
+    "Majority vote": {
+      "queries": 1460,
+      "answered": 1460,
+      "correctness": 0.9732876712328767,
+      "accuracy": 0.9302798982188295,
+      "recall": 1.0,
+      "f1": 0.9638808331136303,
+      "support_ratio": 1.0,
+      "conflicts": 39,
+      "conflict_mitigation": 0.0,
+      "conflict_resolution_acc": 0.0
+    },
+    "Rule-based (frequency rules)": {
+      "queries": 1460,
+      "answered": 1460,
+      "correctness": 1.0,
+      "accuracy": 0.9808219178082191,
+      "recall": 0.7833698030634574,
+      "f1": 0.8710462287104623,
+      "support_ratio": 1.0,
+      "conflicts": 39,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.6923076923076923
+    },
+    "TransE": {
+      "queries": 1460,
+      "answered": 1388,
+      "correctness": 0.9920749279538905,
+      "accuracy": 0.9645821804095185,
+      "recall": 0.9535010940919038,
+      "f1": 0.9590096286107289,
+      "support_ratio": 1.0,
+      "conflicts": 39,
+      "conflict_mitigation": 0.717948717948718,
+      "conflict_resolution_acc": 0.4358974358974359
+    },
+    "DistMult": {
+      "queries": 1460,
+      "answered": 1330,
+      "correctness": 0.9909774436090225,
+      "accuracy": 0.9720930232558139,
+      "recall": 0.9146608315098468,
+      "f1": 0.9425028184892897,
+      "support_ratio": 1.0,
+      "conflicts": 39,
+      "conflict_mitigation": 0.6923076923076923,
+      "conflict_resolution_acc": 0.28205128205128205
+    },
+    "ComplEx": {
+      "queries": 1460,
+      "answered": 1288,
+      "correctness": 0.9937888198757764,
+      "accuracy": 0.9718731298623579,
+      "recall": 0.888402625820569,
+      "f1": 0.9282652186338953,
+      "support_ratio": 1.0,
+      "conflicts": 39,
+      "conflict_mitigation": 0.7948717948717949,
+      "conflict_resolution_acc": 0.3076923076923077
+    },
+    "RotatE": {
+      "queries": 1460,
+      "answered": 1341,
+      "correctness": 0.9955257270693513,
+      "accuracy": 0.9718066743383199,
+      "recall": 0.9239606126914661,
+      "f1": 0.9472798653954011,
+      "support_ratio": 1.0,
+      "conflicts": 39,
+      "conflict_mitigation": 0.8461538461538461,
+      "conflict_resolution_acc": 0.6153846153846154
+    },
+    "R-GCN": {
+      "queries": 1460,
+      "answered": 1304,
+      "correctness": 0.99079754601227,
+      "accuracy": 0.9716479621972829,
+      "recall": 0.899890590809628,
+      "f1": 0.9343936381709741,
+      "support_ratio": 1.0,
+      "conflicts": 39,
+      "conflict_mitigation": 0.6923076923076923,
+      "conflict_resolution_acc": 0.358974358974359
+    },
+    "CompGCN": {
+      "queries": 1460,
+      "answered": 1194,
+      "correctness": 0.9966499162479062,
+      "accuracy": 0.9799092676604018,
+      "recall": 0.8271334792122538,
+      "f1": 0.89706318599822,
+      "support_ratio": 1.0,
+      "conflicts": 39,
+      "conflict_mitigation": 0.8974358974358975,
+      "conflict_resolution_acc": 0.5897435897435898
+    }
+  },
+  "link_prediction": {
+    "Proposed scorer (R-GCN + bilinear)": {
+      "MRR": 0.33799260187611196,
+      "Hits@1": 0.2324945295404814,
+      "Hits@3": 0.38047045951859954,
+      "Hits@10": 0.5467724288840262
+    },
+    "TransE": {
+      "MRR": 0.3265547996630251,
+      "Hits@1": 0.1974835886214442,
+      "Hits@3": 0.3862144420131291,
+      "Hits@10": 0.5823304157549234
+    },
+    "DistMult": {
+      "MRR": 0.31761442461882883,
+      "Hits@1": 0.2163566739606127,
+      "Hits@3": 0.3553063457330416,
+      "Hits@10": 0.5292669584245077
+    },
+    "ComplEx": {
+      "MRR": 0.3193363530161232,
+      "Hits@1": 0.21854485776805252,
+      "Hits@3": 0.35585339168490154,
+      "Hits@10": 0.5265317286652079
+    },
+    "RotatE": {
+      "MRR": 0.3452130514669533,
+      "Hits@1": 0.2286652078774617,
+      "Hits@3": 0.3982494529540481,
+      "Hits@10": 0.5735776805251641
+    },
+    "R-GCN": {
+      "MRR": 0.33917730849057154,
+      "Hits@1": 0.23304157549234136,
+      "Hits@3": 0.3826586433260394,
+      "Hits@10": 0.5566192560175055
+    },
+    "CompGCN": {
+      "MRR": 0.3334543850845566,
+      "Hits@1": 0.2289387308533917,
+      "Hits@3": 0.3777352297592998,
+      "Hits@10": 0.5440371991247265
+    }
+  },
+  "stats": {
+    "entities": 2034,
+    "relations": 42,
+    "triples": 39272,
+    "noise": 2729,
+    "conflict_noise": 760,
+    "random_noise": 1969,
+    "functional_relations": 16,
+    "test_functional_keys": 131,
+    "test_conflict_keys": 39
+  },
+  "seconds": 4919.693303317999,
+  "seed": 1,
+  "protocol": {
+    "noise_rate": 0.058,
+    "tau_func": 0.9,
+    "conflict_rate": 0.3,
+    "functional_relations": [
+      "P102",
+      "P1050",
+      "P119",
+      "P135",
+      "P140",
+      "P159",
+      "P172",
+      "P19",
+      "P20",
+      "P2348",
+      "P26",
+      "P30",
+      "P35",
+      "P509",
+      "P740",
+      "P749"
+    ],
+    "train": {
+      "dim": 128,
+      "lr": 0.003,
+      "epochs": 300,
+      "batch_size": 128,
+      "negatives": 5,
+      "patience": 50,
+      "gnn_layers": 2,
+      "num_bases": 30,
+      "fourier_freqs": 8,
+      "fanout": null,
+      "objective": "kvsall",
+      "select_metric": "mrr",
+      "eval_every": 5,
+      "label_smoothing": 0.0,
+      "emb_dropout": 0.0,
+      "weight_decay": 0.0,
+      "device": "cuda:1"
+    }
+  }
+}

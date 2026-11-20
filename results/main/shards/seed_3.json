@@ -1,0 +1,394 @@
+{
+  "seed": 3,
+  "quick": false,
+  "device": "cuda:1",
+  "stats": {
+    "clean_triples": 5000,
+    "locations": 4683,
+    "relations": [
+      "hasSolarPotential",
+      "produces"
+    ],
+    "clean_conflicts": 0,
+    "split": {
+      "test": 1000,
+      "train": 3200,
+      "val": 800
+    },
+    "noisy_triples": 5300,
+    "injected": 300,
+    "noisy_conflicts": 287,
+    "noisy_conflict_rate": 0.0574,
+    "injected_rejected_by_ontology": 171,
+    "ontology_axioms": [
+      "EnergySource(solar_energy)",
+      "EnergySource \u2291 Thing",
+      "Location \u2291 Thing",
+      "PVValue \u2291 Thing",
+      "Func(hasSolarPotential)  [conf=1.000]",
+      "Func(produces)  [conf=1.000]",
+      "dom(hasSolarPotential) = Location",
+      "dom(produces) = Location",
+      "dom(nearTo) = Location",
+      "ran(hasSolarPotential) = [0.0, 255.0]",
+      "ran(produces) = EnergySource"
+    ]
+  },
+  "noisy": {
+    "Algorithm 1 (paraconsistent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 0.979,
+      "accuracy": 0.9784735812133072,
+      "recall": 1.0,
+      "f1": 0.9891196834817012,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 0.625,
+      "conflict_resolution_acc": 0.625
+    },
+    "Algorithm 2 (learning-assisted)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 1.903,
+      "conflicts": 56,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Algorithm 3 (multi-agent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 4.288,
+      "conflicts": 56,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Ablation: Alg.1 without range axioms": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 0.944,
+      "accuracy": 0.945179584120983,
+      "recall": 1.0,
+      "f1": 0.9718172983479105,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 0.0,
+      "conflict_resolution_acc": 0.0
+    },
+    "Ablation: GNN scorer, no paraconsistent layer": {
+      "queries": 1000,
+      "answered": 983,
+      "correctness": 0.9888097660223805,
+      "accuracy": 0.9889336016096579,
+      "recall": 0.983,
+      "f1": 0.9859578736208625,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 0.8035714285714286,
+      "conflict_resolution_acc": 0.8035714285714286
+    },
+    "Ablation: Alg.2 with shallow scorer (no GNN)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 1.891,
+      "conflicts": 56,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Ablation: Alg.3 with equal agent weights": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 4.288,
+      "conflicts": 56,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Majority vote": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 0.944,
+      "accuracy": 0.945179584120983,
+      "recall": 1.0,
+      "f1": 0.9718172983479105,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 0.0,
+      "conflict_resolution_acc": 0.0
+    },
+    "Rule-based (spatial kNN rules)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 0.969,
+      "recall": 0.969,
+      "f1": 0.969,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 0.44642857142857145
+    },
+    "TransE": {
+      "queries": 1000,
+      "answered": 995,
+      "correctness": 0.9919597989949749,
+      "accuracy": 0.9920239282153539,
+      "recall": 0.995,
+      "f1": 0.9935097353969046,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 0.8571428571428572,
+      "conflict_resolution_acc": 0.8571428571428571
+    },
+    "DistMult": {
+      "queries": 1000,
+      "answered": 989,
+      "correctness": 0.993933265925177,
+      "accuracy": 0.9939698492462311,
+      "recall": 0.989,
+      "f1": 0.9914786967418546,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 0.8928571428571429,
+      "conflict_resolution_acc": 0.8928571428571429
+    },
+    "ComplEx": {
+      "queries": 1000,
+      "answered": 995,
+      "correctness": 0.9909547738693467,
+      "accuracy": 0.9910358565737052,
+      "recall": 0.995,
+      "f1": 0.9930139720558884,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 0.8392857142857143,
+      "conflict_resolution_acc": 0.8392857142857143
+    },
+    "RotatE": {
+      "queries": 1000,
+      "answered": 986,
+      "correctness": 0.9929006085192698,
+      "accuracy": 0.9929506545820745,
+      "recall": 0.986,
+      "f1": 0.9894631209232314,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 0.875,
+      "conflict_resolution_acc": 0.875
+    },
+    "R-GCN": {
+      "queries": 1000,
+      "answered": 977,
+      "correctness": 0.9969293756397134,
+      "accuracy": 0.996938775510204,
+      "recall": 0.977,
+      "f1": 0.9868686868686869,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 0.9464285714285714,
+      "conflict_resolution_acc": 0.9464285714285714
+    },
+    "CompGCN": {
+      "queries": 1000,
+      "answered": 980,
+      "correctness": 0.9857142857142858,
+      "accuracy": 0.9859154929577465,
+      "recall": 0.98,
+      "f1": 0.9829488465396189,
+      "support_ratio": 1.0,
+      "conflicts": 56,
+      "conflict_mitigation": 0.75,
+      "conflict_resolution_acc": 0.7321428571428571
+    }
+  },
+  "clean": {
+    "Algorithm 1 (paraconsistent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 1.0,
+      "conflicts": 0,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Algorithm 2 (learning-assisted)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 1.904,
+      "conflicts": 0,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    },
+    "Algorithm 3 (multi-agent)": {
+      "queries": 1000,
+      "answered": 1000,
+      "correctness": 1.0,
+      "accuracy": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support_ratio": 4.283,
+      "conflicts": 0,
+      "conflict_mitigation": 1.0,
+      "conflict_resolution_acc": 1.0
+    }
+  },
+  "params": {
+    "alg2": {
+      "tau": 0.0,
+      "delta": 0.0
+    },
+    "alg3": {
+      "tau": 0.0,
+      "delta": 0.0
+    }
+  },
+  "kb": {
+    "triples": 5300,
+    "conflict_keys": 122,
+    "rejected_by_ontology": 171,
+    "log10_fragments": 37.60611576628411
+  },
+  "timing": {
+    "Algorithm 1": 0.006142334000003302,
+    "Algorithm 2": 9.967350195999984,
+    "Algorithm 3": 19.86366099399993,
+    "TransE": 3.1433163419999346,
+    "DistMult": 2.7562258860000384,
+    "ComplEx": 2.843681863000029,
+    "RotatE": 7.937644341999999,
+    "R-GCN": 8.419031830999984,
+    "CompGCN": 53.572814021
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 0.5581461168347068,
+      "val_acc": 0.9643750190734863,
+      "seconds": 0.8732989079999811
+    },
+    {
+      "epoch": 2,
+      "loss": 0.2713894065893181,
+      "val_acc": 0.9662500023841858,
+      "seconds": 0.3449790419999772
+    },
+    {
+      "epoch": 3,
+      "loss": 0.22125372114993574,
+      "val_acc": 0.9793750047683716,
+      "seconds": 0.34787683600001174
+    },
+    {
+      "epoch": 4,
+      "loss": 0.18635770562612525,
+      "val_acc": 0.9774999618530273,
+      "seconds": 0.3516413049999869
+    },
+    {
+      "epoch": 5,
+      "loss": 0.16159512323004116,
+      "val_acc": 0.9793750047683716,
+      "seconds": 0.34652064200002997
+    },
+    {
+      "epoch": 6,
+      "loss": 0.1447776495339102,
+      "val_acc": 0.9818750023841858,
+      "seconds": 0.34567139500001076
+    },
+    {
+      "epoch": 7,
+      "loss": 0.13012187431402325,
+      "val_acc": 0.9806250333786011,
+      "seconds": 0.37211669800001346
+    },
+    {
+      "epoch": 8,
+      "loss": 0.13076357258089724,
+      "val_acc": 0.9831249713897705,
+      "seconds": 0.3540833640000187
+    },
+    {
+      "epoch": 9,
+      "loss": 0.10461545995511795,
+      "val_acc": 0.9824999570846558,
+      "seconds": 0.3374923639999565
+    },
+    {
+      "epoch": 10,
+      "loss": 0.09829618242219679,
+      "val_acc": 0.9800000190734863,
+      "seconds": 0.3339633450000292
+    },
+    {
+      "epoch": 11,
+      "loss": 0.09733772553551809,
+      "val_acc": 0.981249988079071,
+      "seconds": 0.33346568700000034
+    },
+    {
+      "epoch": 12,
+      "loss": 0.09513186810908067,
+      "val_acc": 0.9812500476837158,
+      "seconds": 0.3491133190000255
+    },
+    {
+      "epoch": 13,
+      "loss": 0.08995848708403553,
+      "val_acc": 0.9743750095367432,
+      "seconds": 0.3458199680000007
+    },
+    {
+      "epoch": 14,
+      "loss": 0.08181709674135966,
+      "val_acc": 0.9800000190734863,
+      "seconds": 0.3465951029999701
+    },
+    {
+      "epoch": 15,
+      "loss": 0.08279982369456772,
+      "val_acc": 0.981249988079071,
+      "seconds": 0.34417154999999866
+    },
+    {
+      "epoch": 16,
+      "loss": 0.07294126014342081,
+      "val_acc": 0.9787499904632568,
+      "seconds": 0.34428838000002315
+    },
+    {
+      "epoch": 17,
+      "loss": 0.06737221361444709,
+      "val_acc": 0.9800000190734863,
+      "seconds": 0.3482473310000387
+    },
+    {
+      "epoch": 18,
+      "loss": 0.062346889005735755,
+      "val_acc": 0.9793750047683716,
+      "seconds": 0.3456863279999993
+    }
+  ]
+}
