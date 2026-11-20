@@ -38,11 +38,11 @@ docs/
 *.tif
 *.tiff
 
-# Generated artefacts
-results/llm_cache/
-results/*.log
+# Downloaded benchmarks
 dataset/benchmarks/
 
 # Smoke-test / generated results (regenerate with main.py)
-results/*
-!results/.gitkeep
+results/**
+!results/**/
+!results/**/.gitkeep
+
