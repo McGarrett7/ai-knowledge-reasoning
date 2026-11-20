@@ -116,6 +116,7 @@ class ExperimentConfig:
 
 
 def ensure_dirs():
-    for d in (RESULTS_DIR, FIGURES_DIR, BENCHMARK_DIR, MAIN_DIR, BENCH_RESULTS_DIR, ANALYSIS_DIR,
-              SCALABILITY_DIR, LLM_DIR, LOG_DIR):
+    for d in (RESULTS_DIR, FIGURES_DIR, BENCHMARK_DIR, MAIN_DIR, MAIN_DIR / "shards",
+              BENCH_RESULTS_DIR, BENCH_RESULTS_DIR / "shards", ANALYSIS_DIR,
+              SCALABILITY_DIR, LLM_DIR, LLM_DIR / "cache", LOG_DIR):
         d.mkdir(parents=True, exist_ok=True)

@@ -159,5 +159,6 @@ def run_scalability(cfg: ExperimentConfig, sizes=(2500, 5000, 10000, 19757, 5000
     for col in ("fragments_s", "train_s_per_epoch", "alg2_inference_s", "alg3_inference_s"):
         y = np.log([max(r[col], 1e-6) for r in out["size"]])
         out.setdefault("loglog_slope", {})[col] = float(np.polyfit(k, y, 1)[0])
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     (RESULTS_DIR / "scalability.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
     return out

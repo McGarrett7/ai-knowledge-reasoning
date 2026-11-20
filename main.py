@@ -121,6 +121,7 @@ def main(argv=None):
             metrics["backend"] = extractor.backend.describe()
             metrics["usage"] = vars(extractor.backend.usage)
         from kg.llm import safe_name
+        LLM_DIR.mkdir(parents=True, exist_ok=True)
         out = LLM_DIR / f"extraction_{safe_name(extractor.name)}.json"
         out.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
         pred.to_csv(LLM_DIR / "extracted_triples.csv", index=False)

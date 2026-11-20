@@ -143,6 +143,7 @@ def run_llm_baselines(task, backend, value_description: str, max_queries: int | 
             "LLM + paraconsistent (Alg. 2)": task.score(symbolic, "_llm"),
             "usage": usage,
         }
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     out = RESULTS_DIR / f"llm_baselines_{backend.name}_{safe_name(backend.model)}.json"
     out.write_text(json.dumps(results, indent=2), encoding="utf-8")
     print(f"saved {out}")
